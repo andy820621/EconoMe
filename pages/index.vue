@@ -40,11 +40,18 @@
 	</section>
 
 	<section>
-		<Transaction
-			v-for="transaction in transactions"
-			:key="transaction.id"
-			:transaction="transaction"
-		/>
+		<div
+			v-for="(transactionsOnDay, date) in transactionsGroupByDate"
+			:key="date"
+			class="mb-10"
+		>
+			<DailyTransactionSummary :date="date" :transactions="transactionsOnDay" />
+			<Transaction
+				v-for="transaction in transactionsOnDay"
+				:key="transaction.id"
+				:transaction="transaction"
+			/>
+		</div>
 	</section>
 </template>
 
@@ -60,15 +67,28 @@ const selectedView = ref(transactionViewOptions[1]);
 // init supabase client
 const supabase = useSupabaseClient<Database>();
 const transactions = ref<Transaction[]>([]);
-
+// get data from supabase and pass it as Transaction's props
 const { data, pending } = await useAsyncData("transactions", async () => {
 	const { data, error } = await supabase.from("transactions").select();
 
 	if (error) return [];
 	return data;
 });
-
 if (data.value) transactions.value = data.value;
+
+const transactionsGroupByDate = computed(() => {
+	const grouped: Record<string, Transaction[]> = {};
+	for (const transaction of transactions.value) {
+		const date = new Date(transaction.created_at).toISOString().split("T")[0];
+		if (!grouped[date]) {
+			grouped[date] = [];
+		}
+		grouped[date].push(transaction);
+	}
+	return grouped;
+});
+
+console.log("now transcationsGroupByDate", transactionsGroupByDate.value);
 </script>
 
 <style scoped></style>
