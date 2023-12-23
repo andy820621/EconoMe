@@ -1,9 +1,13 @@
-export const useCurrency = (amount: number | Ref<number>) => {
-	const currency = computed(() => {
-		return new Intl.NumberFormat("en-US", {
+export const useCurrency = (amount: number | Ref<number | null> | null) => {
+	const formatCurrency = (value: number) =>
+		new Intl.NumberFormat("en-US", {
 			style: "currency",
 			currency: "USD",
-		}).format(isRef(amount) ? amount.value : amount);
+		}).format(value);
+
+	const currency = computed(() => {
+		const value = isRef(amount) ? amount.value : amount;
+		return value === null ? null : formatCurrency(value);
 	});
 
 	return {
