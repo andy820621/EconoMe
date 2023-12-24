@@ -48,11 +48,13 @@
 			</div>
 		</div>
 		<div>
+			<TransactionModal v-model:is-open="isOpen" />
 			<UButton
 				icon="i-heroicons-plus-circle"
 				color="white"
 				variant="solid"
 				label="Add"
+				@click="isOpen = true"
 			/>
 		</div>
 	</section>
@@ -143,6 +145,9 @@ const incomeTotal = computed(() =>
 const expenseTotal = computed(() =>
 	expense.value.reduce((sum, transaction) => sum + (transaction.amount || 0), 0)
 );
+
+// Modal for add transaction
+const isOpen = ref(false);
 </script>
 
 <style scoped></style>
