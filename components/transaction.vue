@@ -24,6 +24,7 @@
 						variant="ghost"
 						label="Options"
 						trailing-icon="i-heroicons-ellipsis-horizontal"
+						:loading="isLoading"
 					/>
 				</UDropdown>
 			</div>
@@ -35,6 +36,7 @@
 const props = defineProps<{
 	transaction: Transaction;
 }>();
+const emit = defineEmits(["deleteTransaction"]);
 
 const isIncome = computed(() => props.transaction.type === "Income");
 const icon = computed(() =>
@@ -45,6 +47,7 @@ const iconColor = computed(() =>
 );
 
 const { currency } = useCurrency(props.transaction.amount);
+
 const items = [
 	[
 		{
@@ -55,10 +58,36 @@ const items = [
 		{
 			label: "Delete",
 			icon: "i-heroicons-trash-20-solid",
-			click: () => console.log("Delete"),
+			click: deletTransaction,
 		},
 	],
 ];
+
+// delete button method
+const isLoading = ref(false);
+const toast = useToast();
+const supabase = useSupabaseClient();
+async function deletTransaction() {
+	isLoading.value = true;
+	try {
+		await supabase.from("transactions").delete().eq("id", props.transaction.id);
+
+		toast.add({
+			title: "Transaction deleted",
+			icon: "i-heroicons-check-circle",
+			color: "green",
+		});
+		emit("deleteTransaction", props.transaction.id);
+	} catch (error) {
+		toast.add({
+			title: "Transaction deleted",
+			icon: "i-heroicons-exclamation-circle",
+			color: "red",
+		});
+	} finally {
+		isLoading.value = false;
+	}
+}
 </script>
 
 <style scoped></style>

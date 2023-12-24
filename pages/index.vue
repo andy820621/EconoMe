@@ -12,34 +12,52 @@
 		<Trend
 			color="green"
 			title="Income"
-			:amount="4000"
+			:amount="incomeTotal"
 			:last-amount="3000"
-			:loading="false"
+			:loading="isLoading"
 		/>
 		<Trend
 			color="red"
 			title="Expense"
-			:amount="4000"
+			:amount="expenseTotal"
 			:last-amount="5000"
-			:loading="false"
+			:loading="isLoading"
 		/>
 		<Trend
 			color="green"
 			title="Incestments"
 			:amount="4000"
 			:last-amount="3000"
-			:loading="false"
+			:loading="isLoading"
 		/>
 		<Trend
 			color="red"
 			title="Saving"
 			:amount="4000"
 			:last-amount="4100"
-			:loading="false"
+			:loading="isLoading"
 		/>
 	</section>
 
-	<section>
+	<section class="flex justify-between mb-10">
+		<div>
+			<h2 class="text-2xl font-extrabold">Transactions</h2>
+			<div class="text-gray-500 dark:text-gray-400">
+				You have {{ incomeCount }} incomes and {{ expenseCount }} expenses this
+				period.
+			</div>
+		</div>
+		<div>
+			<UButton
+				icon="i-heroicons-plus-circle"
+				color="white"
+				variant="solid"
+				label="Add"
+			/>
+		</div>
+	</section>
+
+	<section v-if="!isLoading">
 		<div
 			v-for="(transactionsOnDay, date) in transactionsGroupByDate"
 			:key="date"
@@ -50,8 +68,12 @@
 				v-for="transaction in transactionsOnDay"
 				:key="transaction.id"
 				:transaction="transaction"
+				@deleteTransaction="refreshTransactions"
 			/>
 		</div>
+	</section>
+	<section v-else>
+		<USkeleton class="h-8 w-full mb-2" v-for="i in 4" :key="i" />
 	</section>
 </template>
 
@@ -67,14 +89,6 @@ const selectedView = ref(transactionViewOptions[1]);
 // init supabase client
 const supabase = useSupabaseClient<Database>();
 const transactions = ref<Transaction[]>([]);
-// get data from supabase and pass it as Transaction's props
-const { data, pending } = await useAsyncData("transactions", async () => {
-	const { data, error } = await supabase.from("transactions").select();
-
-	if (error) return [];
-	return data;
-});
-if (data.value) transactions.value = data.value;
 
 const transactionsGroupByDate = computed(() => {
 	const grouped: Record<string, Transaction[]> = {};
@@ -88,7 +102,47 @@ const transactionsGroupByDate = computed(() => {
 	return grouped;
 });
 
-console.log("now transcationsGroupByDate", transactionsGroupByDate.value);
+// get data from supabase and pass it as Transaction's props
+const isLoading = ref(false);
+async function fetchTransactions() {
+	isLoading.value = true;
+	try {
+		const { data } = await useAsyncData("transactions", async () => {
+			const { data, error } = await supabase.from("transactions").select();
+
+			if (error) return [];
+			return data;
+		});
+
+		return data.value;
+	} catch (error) {
+	} finally {
+		isLoading.value = false;
+	}
+}
+
+async function refreshTransactions() {
+	const transactionsResult = await fetchTransactions();
+	if (transactionsResult) transactions.value = transactionsResult;
+}
+
+await refreshTransactions();
+
+// income / expense
+const income = computed(() =>
+	transactions.value.filter((t) => t.type === "Income")
+);
+const expense = computed(() =>
+	transactions.value.filter((t) => t.type === "Expense")
+);
+const incomeCount = computed(() => income.value.length);
+const expenseCount = computed(() => expense.value.length);
+const incomeTotal = computed(() =>
+	income.value.reduce((sum, transaction) => sum + (transaction.amount || 0), 0)
+);
+const expenseTotal = computed(() =>
+	expense.value.reduce((sum, transaction) => sum + (transaction.amount || 0), 0)
+);
 </script>
 
 <style scoped></style>
