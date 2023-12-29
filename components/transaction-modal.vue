@@ -139,6 +139,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 	console.log("onSubmit", event.data);
 	if (form.value.errors.length) return;
 }
+
 function resetForm() {
 	Object.assign(state, initialState);
 	form.value.clear();
