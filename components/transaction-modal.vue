@@ -85,6 +85,7 @@ import { categories, transactionTypes } from "@/constants";
 import type { Database, Transaction } from "~/lib/database.types";
 import type { FormError, FormSubmitEvent } from "#ui/types";
 import { z } from "zod";
+import { format } from "date-fns";
 
 const props = defineProps<{
 	isOpen: boolean;
@@ -102,7 +103,6 @@ const isOpen = computed({
 // Form Part
 const isLoading = ref(false);
 const form = ref();
-const currentDate = new Date();
 const defautSchema = z.object({
 	amount: z.number().positive("Amount needs to be more than 0"),
 	created_at: z.string(),
@@ -129,19 +129,11 @@ type Schema = z.output<typeof schema>;
 const initialState = {
 	type: undefined,
 	amount: 0,
-	created_at: undefined,
+	created_at: format(new Date(), "yyyy-MM-dd"),
 	description: undefined,
 	category: undefined,
 };
-const state = reactive({
-	...initialState,
-	created_at:
-		currentDate.getFullYear() +
-		"-" +
-		(currentDate.getMonth() + 1) +
-		"-" +
-		currentDate.getDate(),
-});
+const state = reactive({ ...initialState });
 const supabase = useSupabaseClient<Database>();
 const toast = useToast();
 async function onSubmit(event: FormSubmitEvent<Schema>) {

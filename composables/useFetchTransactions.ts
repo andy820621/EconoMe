@@ -1,3 +1,4 @@
+import { endOfDay, formatISO, startOfDay } from "date-fns";
 import type { Database, Transaction } from "~/lib/database.types";
 
 export function useFetchTransactions(
@@ -52,11 +53,18 @@ export function useFetchTransactions(
 			const { data } = await useAsyncData(
 				`transactions-${period.value.from.toDateString()}-${period.value.to.toDateString()}`,
 				async () => {
+					// 調整為當地時間的開始和結束
+					const startDate = startOfDay(period.value.from);
+					const endDate = endOfDay(period.value.to);
+					// 格式化成 ISO
+					const formattedStartDate = formatISO(startDate);
+					const formattedEndDate = formatISO(endDate);
+
 					const { data, error } = await supabase
 						.from("transactions")
 						.select()
-						.gte("created_at", period.value.from.toISOString())
-						.lte("created_at", period.value.to.toISOString())
+						.gte("created_at", formattedStartDate)
+						.lte("created_at", formattedEndDate)
 						.order("created_at", { ascending: false });
 
 					if (error) return [];
@@ -76,7 +84,7 @@ export function useFetchTransactions(
 		if (transactionsResult) transactions.value = transactionsResult;
 	}
 
-	watch(period, async () => await refresh(), { immediate: true });
+	watch(period, async () => await refresh());
 
 	return {
 		transactions: {

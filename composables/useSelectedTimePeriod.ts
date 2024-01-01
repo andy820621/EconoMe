@@ -16,22 +16,22 @@ export function useSelectedTimePeriod<T>(period: Ref<string>) {
 			case "Yearly":
 				return {
 					from: startOfYear(new Date()),
-					to: new Date(),
+					to: endOfYear(new Date()),
 				};
 			case "Monthly":
 				return {
 					from: startOfMonth(new Date()),
-					to: new Date(),
+					to: endOfMonth(new Date()),
 				};
 			case "Weekly":
 				return {
 					from: startOfWeek(new Date()),
-					to: new Date(),
+					to: endOfWeek(new Date()),
 				};
 			default: // means Dialy
 				return {
 					from: startOfDay(new Date()),
-					to: new Date(),
+					to: endOfDay(new Date()),
 				};
 		}
 	});
