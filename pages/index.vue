@@ -13,14 +13,14 @@
 			color="green"
 			title="Income"
 			:amount="incomeTotal"
-			:last-amount="3000"
+			:last-amount="previousIncomeTotal"
 			:loading="pending"
 		/>
 		<Trend
 			color="red"
 			title="Expense"
 			:amount="expenseTotal"
-			:last-amount="5000"
+			:last-amount="previousExpenseTotal"
 			:loading="pending"
 		/>
 		<Trend
@@ -80,6 +80,8 @@ import { transactionViewOptions } from "~/constants";
 
 const selectedView = ref(transactionViewOptions[1]);
 
+const { current, previous } = useSelectedTimePeriod(selectedView);
+
 const {
 	pending,
 	refresh,
@@ -90,9 +92,13 @@ const {
 		expenseCount,
 		grouped: { byDate },
 	},
-} = useFetchTransactions();
-
-await refresh();
+} = useFetchTransactions(current);
+const {
+	transactions: {
+		incomeTotal: previousIncomeTotal,
+		expenseTotal: previousExpenseTotal,
+	},
+} = useFetchTransactions(previous);
 
 // Modal for add transaction
 const isOpen = ref(false);

@@ -1,9 +1,15 @@
 import type { Database, Transaction } from "~/lib/database.types";
 
-export function useFetchTransactions() {
+export function useFetchTransactions(
+	period: ComputedRef<{
+		from: Date;
+		to: Date;
+	}>
+) {
 	const supabase = useSupabaseClient<Database>(); // init supabase client
 	const transactions = ref<Transaction[]>([]);
 	const pending = ref(false);
+
 	// income / expense
 	const income = computed(() =>
 		transactions.value.filter((t) => t.type === "Income")
@@ -43,15 +49,20 @@ export function useFetchTransactions() {
 	async function fetchTransactions() {
 		pending.value = true;
 		try {
-			const { data } = await useAsyncData("transactions", async () => {
-				const { data, error } = await supabase
-					.from("transactions")
-					.select()
-					.order("created_at", { ascending: false });
+			const { data } = await useAsyncData(
+				`transactions-${period.value.from.toDateString()}-${period.value.to.toDateString()}`,
+				async () => {
+					const { data, error } = await supabase
+						.from("transactions")
+						.select()
+						.gte("created_at", period.value.from.toISOString())
+						.lte("created_at", period.value.to.toISOString())
+						.order("created_at", { ascending: false });
 
-				if (error) return [];
-				return data;
-			});
+					if (error) return [];
+					return data;
+				}
+			);
 
 			return data.value;
 		} catch (error) {
@@ -64,6 +75,8 @@ export function useFetchTransactions() {
 		const transactionsResult = await fetchTransactions();
 		if (transactionsResult) transactions.value = transactionsResult;
 	}
+
+	watch(period, async () => await refresh(), { immediate: true });
 
 	return {
 		transactions: {
