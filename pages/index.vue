@@ -48,7 +48,10 @@
 			</div>
 		</div>
 		<div>
-			<TransactionModal v-model:is-open="isOpen" />
+			<TransactionModal
+				v-model:is-open="isOpen"
+				@submitted="refreshTransactions"
+			/>
 			<UButton
 				icon="i-heroicons-plus-circle"
 				color="white"
@@ -82,9 +85,7 @@
 <script setup lang="ts">
 import { transactionViewOptions } from "~/constants";
 
-import type { Database } from "~/lib/database.types";
-
-type Transaction = Database["public"]["Tables"]["transactions"]["Row"];
+import type { Database, Transaction } from "~/lib/database.types";
 
 const selectedView = ref(transactionViewOptions[1]);
 

@@ -68,7 +68,13 @@
 					/>
 				</UFormGroup>
 
-				<UButton type="submit" color="black" variant="solid"> Save </UButton>
+				<UButton
+					type="submit"
+					color="black"
+					variant="solid"
+					label="Save"
+					:loading="isLoading"
+				/>
 			</UForm>
 		</UCard>
 	</UModal>
@@ -76,13 +82,14 @@
 
 <script setup lang="ts">
 import { categories, transactionTypes } from "@/constants";
+import type { Database, Transaction } from "~/lib/database.types";
 import type { FormError, FormSubmitEvent } from "#ui/types";
 import { z } from "zod";
 
 const props = defineProps<{
 	isOpen: boolean;
 }>();
-const emit = defineEmits(["update:isOpen"]);
+const emit = defineEmits(["update:isOpen", "submitted"]);
 
 const isOpen = computed({
 	get: () => props.isOpen,
@@ -93,6 +100,7 @@ const isOpen = computed({
 });
 
 // Form Part
+const isLoading = ref(false);
 const form = ref();
 const currentDate = new Date();
 const defautSchema = z.object({
@@ -134,10 +142,37 @@ const state = reactive({
 		"-" +
 		currentDate.getDate(),
 });
-
+const supabase = useSupabaseClient<Database>();
+const toast = useToast();
 async function onSubmit(event: FormSubmitEvent<Schema>) {
 	console.log("onSubmit", event.data);
 	if (form.value.errors.length) return;
+
+	isLoading.value = true;
+
+	try {
+		const { error } = await supabase.from("transactions").upsert({ ...state });
+
+		if (!error) {
+			toast.add({
+				title: "Transaction added",
+				icon: "i-heroicons-check-circle",
+			});
+			isOpen.value = false;
+			emit("submitted");
+			return;
+		}
+		throw error;
+	} catch (e) {
+		toast.add({
+			title: "Transaction not submitted",
+			description: (e as Error).message,
+			icon: "i-heroicons-exclamation-circle",
+			color: "red",
+		});
+	} finally {
+		isLoading.value = false;
+	}
 }
 
 function resetForm() {
