@@ -10,17 +10,3 @@ import type { NuxtLink } from '#build/components';
 		</div>
 	</header>
 </template>
-
-<script setup lang="ts">
-const user = useSupabaseUser();
-
-watch(
-	user,
-	(user) => {
-		if (user) console.log("Signed in!", user);
-	},
-	{ immediate: true }
-);
-</script>
-
-<style scoped></style>
