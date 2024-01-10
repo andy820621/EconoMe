@@ -10,7 +10,7 @@ import {
 	sub,
 } from "date-fns";
 
-export function useSelectedTimePeriod<T>(period: Ref<string>) {
+export function useSelectedTimePeriod(period: Ref<string>) {
 	const current = computed(() => {
 		switch (period.value) {
 			case "Yearly":
