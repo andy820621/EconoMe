@@ -1,4 +1,4 @@
-export const useRedirectIfAuthenticated = (url = "/") => {
+export function useRedirectIfAuthenticated(url = "/") {
 	const user = useSupabaseUser();
 
 	watch(
@@ -9,7 +9,5 @@ export const useRedirectIfAuthenticated = (url = "/") => {
 		{ immediate: true }
 	);
 
-	return {
-		user,
-	};
-};
+	return { user };
+}
