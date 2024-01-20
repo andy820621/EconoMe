@@ -13,11 +13,14 @@ import type { NuxtLink } from '#build/components';
 					alt="Avatar"
 				/>
 
-				<template #account="{ item }">
+				<template #account>
 					<div class="text-left">
 						<p>Signed in as</p>
-						<p class="font-medium text-gray-900 dark:text-white">
-							{{ item.label }}
+						<p
+							v-if="user.email"
+							class="font-medium text-gray-900 dark:text-white"
+						>
+							{{ user.email }}
 						</p>
 					</div>
 				</template>
