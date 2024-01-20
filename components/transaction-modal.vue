@@ -135,7 +135,7 @@ const initialState = {
 };
 const state = reactive({ ...initialState });
 const supabase = useSupabaseClient<Database>();
-const toast = useToast();
+const { toastSuccess, toastError } = useAppToast();
 async function onSubmit(event: FormSubmitEvent<Schema>) {
 	console.log("onSubmit", event.data);
 	if (form.value.errors.length) return;
@@ -146,9 +146,8 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 		const { error } = await supabase.from("transactions").upsert({ ...state });
 
 		if (!error) {
-			toast.add({
+			toastSuccess({
 				title: "Transaction added",
-				icon: "i-heroicons-check-circle",
 			});
 			isOpen.value = false;
 			emit("submitted");
@@ -156,11 +155,9 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 		}
 		throw error;
 	} catch (e) {
-		toast.add({
+		toastError({
 			title: "Transaction not submitted",
 			description: (e as Error).message,
-			icon: "i-heroicons-exclamation-circle",
-			color: "red",
 		});
 	} finally {
 		isLoading.value = false;
