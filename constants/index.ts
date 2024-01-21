@@ -1,4 +1,9 @@
-export const transactionViewOptions = ["Yearly", "Monthly", "Weekly", "Daily"];
+export const transactionViewOptions = [
+	"Yearly",
+	"Monthly",
+	"Weekly",
+	"Daily",
+] as const;
 
 export const categories = ["Food", "Housing", "Car", "Entertainment", "Other"];
 

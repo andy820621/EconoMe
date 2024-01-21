@@ -114,7 +114,7 @@ const expenseSchema = z.object({
 	category: z.enum(categories as [string, ...string[]]),
 });
 const investmentSchema = z.object({ type: z.literal("Investment") });
-const sacingSchema = z.object({ type: z.literal("Savings") });
+const sacingSchema = z.object({ type: z.literal("Saving") });
 const schema = z.intersection(
 	defautSchema,
 	z.discriminatedUnion("type", [

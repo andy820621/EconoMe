@@ -2,7 +2,10 @@
 	<section class="flex items-center justify-between mb-8">
 		<h1 class="text-4xl font-extrabold">Summary</h1>
 		<div>
-			<USelectMenu v-model="selectedView" :options="transactionViewOptions" />
+			<USelectMenu
+				v-model="selectedView"
+				:options="[...transactionViewOptions]"
+			/>
 		</div>
 	</section>
 
@@ -78,7 +81,10 @@
 <script setup lang="ts">
 import { transactionViewOptions } from "~/constants";
 
-const selectedView = ref(transactionViewOptions[1]);
+const user = useSupabaseUser();
+const selectedView = ref(
+	user.value?.user_metadata?.transaction_view ?? transactionViewOptions[1]
+);
 
 const { current, previous } = useSelectedTimePeriod(selectedView);
 
