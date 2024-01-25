@@ -90,6 +90,7 @@ import { format } from "date-fns";
 const props = defineProps<{
 	isOpen: boolean;
 }>();
+
 const emit = defineEmits(["update:isOpen", "submitted"]);
 
 const isOpen = computed({
