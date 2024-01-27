@@ -6,10 +6,7 @@
 				class="w-full"
 				help="This would be blank by default"
 			>
-				<UAvatar
-					src="https://avatars.githubusercontent.com/u/739984?v=4"
-					size="3xl"
-				/>
+				<UAvatar :src="avatarUrl" size="3xl" imgClass="object-cover" />
 			</UFormGroup>
 		</div>
 
@@ -41,6 +38,8 @@ const supabase = useSupabaseClient<Database>();
 const user = useSupabaseUser();
 // We need to get the actual avatar URL
 const { toastSuccess, toastError } = useAppToast();
+
+const { url: avatarUrl } = useAvatarUrl();
 
 const uploading = ref(false);
 const fileInput = ref();

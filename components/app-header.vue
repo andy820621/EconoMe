@@ -8,10 +8,7 @@ import type { NuxtLink } from '#build/components';
 				:ui="{ item: { disabled: 'cursor-text select-text' }, width: 'w-64' }"
 				v-if="user"
 			>
-				<UAvatar
-					src="https://avatars.githubusercontent.com/u/739984?v=4"
-					alt="Avatar"
-				/>
+				<UAvatar :src="avatarUrl" alt="Avatar" imgClass="object-cover" />
 
 				<template #account>
 					<div class="text-left">
@@ -41,6 +38,8 @@ import type { NuxtLink } from '#build/components';
 <script setup lang="ts">
 const supabase = useSupabaseClient<Database>();
 const user = useSupabaseUser();
+const { url: avatarUrl } = useAvatarUrl();
+
 const items = [
 	[
 		{
