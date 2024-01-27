@@ -57,11 +57,31 @@ const saveAvatar = async () => {
 
 	try {
 		uploading.value = true;
-		// 1. Grab the current avatar URL
-		// 2. Upload the image to avatars bucket
-		// 3. Update the user metadata with the avatar URL
-		// 4. (OPTIONALLY) remove the old avatar file
-		// 5. Reset the file input
+		// Grab the current avatar URL
+		const currentAvatarUrl = user.value?.user_metadata?.avatar_url;
+
+		// Upload the image to avatars bucket
+		const { error } = await supabase.storage
+			.from("avatars")
+			.upload(fileName, file);
+		if (error) throw error;
+
+		// Update the user metadata with the avatar URL
+		await supabase.auth.updateUser({
+			data: {
+				avatar_url: fileName,
+			},
+		});
+
+		// remove the old avatar file
+		if (currentAvatarUrl) {
+			const { error } = await supabase.storage
+				.from("avatars")
+				.remove([currentAvatarUrl]);
+			if (error) throw error;
+		}
+
+		fileInput.value.input.value = null; // Reset the file input
 
 		toastSuccess({
 			title: "Avatar uploaded",
