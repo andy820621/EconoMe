@@ -8,4 +8,9 @@ export default defineNuxtConfig({
 	typescript: {
 		typeCheck: true,
 	},
+	runtimeConfig: {
+		public: {
+			baseUrl: process.env.BASE_URL || "http://localhost:3000",
+		},
+	},
 });

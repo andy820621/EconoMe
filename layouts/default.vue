@@ -9,8 +9,9 @@
 </template>
 
 <script setup>
-// Link to Google Fonts
 useHead({
+	titleTemplate: "%s - EconoMe",
+	// Link to Google Fonts
 	link: [
 		{
 			rel: "preconnect",
