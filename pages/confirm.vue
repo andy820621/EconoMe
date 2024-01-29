@@ -9,5 +9,3 @@
 <script setup lang="ts">
 useRedirectIfAuthenticated();
 </script>
-
-<style scoped></style>

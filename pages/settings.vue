@@ -26,5 +26,3 @@ const links = [
 	},
 ];
 </script>
-
-<style scoped lang="scss"></style>

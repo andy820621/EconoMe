@@ -70,6 +70,7 @@
 				:key="transaction.id"
 				:transaction="transaction"
 				@deleteTransaction="refresh"
+				@editTransaction="refresh"
 			/>
 		</div>
 	</section>
@@ -113,5 +114,3 @@ await refreshPrevious();
 // Modal for add transaction
 const isOpen = ref(false);
 </script>
-
-<style scoped></style>

@@ -26,6 +26,11 @@
 						trailing-icon="i-heroicons-ellipsis-horizontal"
 						:loading="isLoading"
 					/>
+					<TransactionModal
+						v-model:isOpen="isOpen"
+						:transaction="transaction"
+						@submitted="emit('editTransaction', 'edited')"
+					/>
 				</UDropdown>
 			</div>
 		</div>
@@ -36,7 +41,7 @@
 const props = defineProps<{
 	transaction: Transaction;
 }>();
-const emit = defineEmits(["deleteTransaction"]);
+const emit = defineEmits(["deleteTransaction", "editTransaction"]);
 
 const isIncome = computed(() => props.transaction.type === "Income");
 const icon = computed(() =>
@@ -53,7 +58,7 @@ const items = [
 		{
 			label: "Edit",
 			icon: "i-heroicons-pencil-square-20-solid",
-			click: () => console.log("Edit"),
+			click: () => (isOpen.value = true),
 		},
 		{
 			label: "Delete",
@@ -84,6 +89,7 @@ async function deletTransaction() {
 		isLoading.value = false;
 	}
 }
-</script>
 
-<style scoped></style>
+// edit
+const isOpen = ref(false);
+</script>

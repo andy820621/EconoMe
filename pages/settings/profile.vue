@@ -72,5 +72,3 @@ async function saveProfile() {
 	}
 }
 </script>
-
-<style scoped></style>

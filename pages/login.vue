@@ -71,5 +71,3 @@ async function handleLogin() {
 	}
 }
 </script>
-
-<style scoped></style>

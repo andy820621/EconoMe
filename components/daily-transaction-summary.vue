@@ -32,5 +32,3 @@ const sum = computed(() => {
 
 const { currency } = useCurrency(sum);
 </script>
-
-<style scoped></style>

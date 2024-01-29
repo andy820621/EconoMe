@@ -1,12 +1,14 @@
 <template>
-	<UModal v-model="isOpen">
+	<UModal v-model="isOpen" @update:model-value="handelUpdateIsOpen">
 		<UCard
 			:ui="{
 				ring: '',
 				divide: 'divide-y divide-gray-100 dark:divide-gray-800',
 			}"
 		>
-			<template #header> Add Transaction </template>
+			<template #header>
+				{{ isEditing ? "Edit" : "Add" }} Transaction
+			</template>
 
 			<UForm
 				:schema="schema"
@@ -17,6 +19,7 @@
 			>
 				<UFormGroup required label="Transaction Type" name="type" class="mb-4">
 					<USelect
+						:disabled="isEditing"
 						placeholder="Select a transaction Type"
 						v-model="state.type"
 						:options="transactionTypes"
@@ -82,29 +85,32 @@
 
 <script setup lang="ts">
 import { categories, transactionTypes } from "@/constants";
-import type { Database, Transaction } from "~/lib/database.types";
-import type { FormError, FormSubmitEvent } from "#ui/types";
+import type { Database } from "~/lib/database.types";
+import type { FormSubmitEvent } from "#ui/types";
 import { z } from "zod";
 import { format } from "date-fns";
 
-const props = defineProps<{
-	isOpen: boolean;
-}>();
+interface Props {
+	transaction?: Transaction;
+}
 
-const emit = defineEmits(["update:isOpen", "submitted"]);
+const props = defineProps<Props>();
 
-const isOpen = computed({
-	get: () => props.isOpen,
-	set(value) {
-		if (!value) resetForm();
-		emit("update:isOpen", value);
-	},
-});
+const isEditing = computed(() => "transaction" in props);
+
+const emit = defineEmits(["submitted"]);
+
+const isOpen = defineModel<boolean>("isOpen", { required: true });
+
+function handelUpdateIsOpen(value: boolean) {
+	if (!value) resetForm();
+}
 
 // Form Part
 const isLoading = ref(false);
 const form = ref();
 const defautSchema = z.object({
+	id: z.number().optional(),
 	amount: z.number().positive("Amount needs to be more than 0"),
 	created_at: z.string(),
 	description: z.string().optional(),
@@ -116,6 +122,7 @@ const expenseSchema = z.object({
 });
 const investmentSchema = z.object({ type: z.literal("Investment") });
 const sacingSchema = z.object({ type: z.literal("Saving") });
+
 const schema = z.intersection(
 	defautSchema,
 	z.discriminatedUnion("type", [
@@ -134,7 +141,20 @@ const initialState = {
 	description: undefined,
 	category: undefined,
 };
-const state = reactive({ ...initialState });
+const state = reactive(
+	isEditing.value
+		? {
+				type: props.transaction?.type as Schema["type"],
+				amount: props.transaction?.amount as Schema["amount"],
+				created_at: props.transaction?.created_at.split(
+					"T"
+				)[0] as Schema["created_at"],
+				description: props.transaction?.description as Schema["description"],
+				category: props.transaction?.category || undefined,
+		  }
+		: { ...initialState }
+);
+
 const supabase = useSupabaseClient<Database>();
 const { toastSuccess, toastError } = useAppToast();
 async function onSubmit(event: FormSubmitEvent<Schema>) {
@@ -144,7 +164,11 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 	isLoading.value = true;
 
 	try {
-		const { error } = await supabase.from("transactions").upsert({ ...state });
+		const { error } = await supabase
+			.from("transactions")
+			.upsert(
+				isEditing.value ? { ...state, id: props.transaction?.id } : { ...state }
+			);
 
 		if (!error) {
 			toastSuccess({
@@ -170,5 +194,3 @@ function resetForm() {
 	form.value.clear();
 }
 </script>
-
-<style scoped></style>
