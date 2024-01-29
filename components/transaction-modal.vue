@@ -134,26 +134,24 @@ const schema = z.intersection(
 );
 type Schema = z.output<typeof schema>;
 
-const initialState = {
-	type: undefined,
-	amount: 0,
-	created_at: format(new Date(), "yyyy-MM-dd"),
-	description: undefined,
-	category: undefined,
-};
-const state = reactive(
-	isEditing.value
-		? {
-				type: props.transaction?.type as Schema["type"],
-				amount: props.transaction?.amount as Schema["amount"],
-				created_at: props.transaction?.created_at.split(
-					"T"
-				)[0] as Schema["created_at"],
-				description: props.transaction?.description as Schema["description"],
-				category: props.transaction?.category || undefined,
-		  }
-		: { ...initialState }
-);
+const initialState = isEditing.value
+	? {
+			type: props.transaction?.type as Schema["type"],
+			amount: props.transaction?.amount as Schema["amount"],
+			created_at: props.transaction?.created_at.split(
+				"T"
+			)[0] as Schema["created_at"],
+			description: props.transaction?.description as Schema["description"],
+			category: props.transaction?.category || undefined,
+	  }
+	: {
+			type: undefined,
+			amount: 0,
+			created_at: format(new Date(), "yyyy-MM-dd"),
+			description: undefined,
+			category: undefined,
+	  };
+const state = reactive({ ...initialState });
 
 const supabase = useSupabaseClient<Database>();
 const { toastSuccess, toastError } = useAppToast();
