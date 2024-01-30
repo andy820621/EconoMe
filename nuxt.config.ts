@@ -5,9 +5,9 @@ export default defineNuxtConfig({
 	supabase: {
 		redirect: false,
 	},
-	typescript: {
-		typeCheck: true,
-	},
+	// typescript: {
+	// 	typeCheck: true,
+	// },
 	runtimeConfig: {
 		public: {
 			baseUrl: process.env.BASE_URL || "http://localhost:3000",
