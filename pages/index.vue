@@ -82,6 +82,10 @@
 <script setup lang="ts">
 import { transactionViewOptions } from "~/constants";
 
+useHead({
+	title: "Home",
+});
+
 const user = useSupabaseUser();
 const selectedView = ref(
 	user.value?.user_metadata?.transaction_view ?? transactionViewOptions[1]

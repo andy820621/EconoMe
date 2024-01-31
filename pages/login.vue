@@ -38,6 +38,10 @@
 </template>
 
 <script setup lang="ts">
+useHead({
+	title: "Login",
+});
+
 const success = ref(false);
 const email = ref("");
 const pending = ref(false);

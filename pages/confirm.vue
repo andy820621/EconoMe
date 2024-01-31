@@ -7,5 +7,8 @@
 </template>
 
 <script setup lang="ts">
+useHead({
+	title: "Confirm",
+});
 useRedirectIfAuthenticated();
 </script>

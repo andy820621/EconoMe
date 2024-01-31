@@ -11,6 +11,10 @@
 </template>
 
 <script setup lang="ts">
+useHead({
+	title: "Settings",
+});
+
 const links = [
 	{
 		label: "Profile",
