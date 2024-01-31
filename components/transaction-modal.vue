@@ -86,9 +86,9 @@
 <script setup lang="ts">
 import { categories, transactionTypes } from "@/constants";
 import type { Database } from "~/lib/database.types";
-import type { FormSubmitEvent } from "#ui/types";
 import { z } from "zod";
 import { format } from "date-fns";
+import type { FormSubmitEvent } from "@nuxt/ui/dist/runtime/types/form";
 
 interface Props {
 	transaction?: Transaction;

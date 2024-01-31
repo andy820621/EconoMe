@@ -1,4 +1,3 @@
-import type { NuxtLink } from '#build/components';
 <template>
 	<header class="flex justify-between items-center mt-5">
 		<NuxtLink to="/" class="text-xl font-bold">Finance Tracker</NuxtLink>
