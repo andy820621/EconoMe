@@ -13,4 +13,7 @@ export default defineNuxtConfig({
 			baseUrl: process.env.BASE_URL || "http://localhost:3000",
 		},
 	},
+	future: {
+		compatibilityVersion: 4,
+	}
 });
