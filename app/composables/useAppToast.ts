@@ -11,7 +11,7 @@ export const useAppToast = () => {
 			title,
 			description,
 			icon: "i-heroicons-check-circle",
-			color: "green",
+			color: "success",
 		});
 	}
 
@@ -20,7 +20,7 @@ export const useAppToast = () => {
 			title,
 			description,
 			icon: "i-heroicons-exclamation-circle",
-			color: "red",
+			color: "error",
 		});
 	}
 

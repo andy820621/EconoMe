@@ -2,7 +2,7 @@
 	<header class="flex justify-between items-center mt-5">
 		<NuxtLink to="/" class="text-xl font-bold">Finance Tracker</NuxtLink>
 		<div>
-			<UDropdown
+			<UDropdownMenu
 				:items="items"
 				:ui="{ item: { disabled: 'cursor-text select-text' }, width: 'w-64' }"
 				v-if="user"
@@ -14,7 +14,7 @@
 						<p>Signed in as</p>
 						<p
 							v-if="user.email"
-							class="font-medium text-gray-900 dark:text-white"
+							class="font-medium text-neutral-900 dark:text-white"
 						>
 							{{ user.email }}
 						</p>
@@ -25,11 +25,11 @@
 					<span class="truncate">{{ item.label }}</span>
 
 					<UIcon
-						:name="item.icon"
-						class="flex-shrink-0 h-4 w-4 text-gray-400 dark:text-gray-500 ms-auto"
+						:name="item.icon ?? ''"
+						class="shrink-0 h-4 w-4 text-neutral-400 dark:text-neutral-500 ms-auto"
 					/>
 				</template>
-			</UDropdown>
+			</UDropdownMenu>
 		</div>
 	</header>
 </template>
@@ -51,12 +51,12 @@ const items = [
 		{
 			label: "Settings",
 			icon: "i-heroicons-cog-8-tooth",
-			click: () => navigateTo("/settings/profile"),
+			onSelect: () => navigateTo("/settings/profile"),
 		},
 		{
 			label: "Sign out",
 			icon: "i-heroicons-arrow-left-on-rectangle",
-			click: async () => {
+			onSelect: async () => {
 				await supabase.auth.signOut();
 				return navigateTo("/login");
 			},

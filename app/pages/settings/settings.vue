@@ -1,19 +1,19 @@
 <template>
 	<UForm :state="state" :schema="schema" @submit="saveSettings">
-		<UFormGroup
+		<UFormField
 			label="Transaction View"
 			class="mb-4"
 			help="Choose how you would like to view transactions"
 		>
 			<USelect
 				v-model="state.transactionView"
-				:options="[...transactionViewOptions]"
+				:items="[...transactionViewOptions]"
 			/>
-		</UFormGroup>
+		</UFormField>
 
 		<UButton
 			type="submit"
-			color="black"
+			color="neutral"
 			variant="solid"
 			label="Save"
 			:loading="pending"

@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="grid grid-cols-3 py-4 border-b border-gray-200 dark:border-gray-800 text-gray-900 dark:text-gray-200"
+		class="grid grid-cols-3 py-4 border-b border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-neutral-200"
 	>
 		<div class="flex items-center justify-between space-x-4 col-span-2">
 			<div class="flex items-center space-x-1">
@@ -9,7 +9,7 @@
 			</div>
 
 			<div>
-				<UBadge color="white" v-if="transaction.category">{{
+				<UBadge color="neutral" variant="outline" v-if="transaction.category">{{
 					transaction.category
 				}}</UBadge>
 			</div>
@@ -18,20 +18,21 @@
 		<div class="flex items-center justify-end space-x-2">
 			<div>{{ currency }}</div>
 			<div>
-				<UDropdown :items="items" :popper="{ placement: 'bottom-start' }">
+				<UDropdownMenu :items="items" :popper="{ placement: 'bottom-start' }">
+					<!-- variant="ghost" -->
 					<UButton
-						color="white"
-						variant="ghost"
+						color="neutral"
+						variant="outline"
 						label="Options"
 						trailing-icon="i-heroicons-ellipsis-horizontal"
 						:loading="isLoading"
 					/>
 					<TransactionModal
-						v-model:isOpen="isOpen"
+						v-model="isOpen"
 						:transaction="transaction"
-						@submitted="emit('editTransaction', 'edited')"
+						@saved="emit('edited')"
 					/>
-				</UDropdown>
+				</UDropdownMenu>
 			</div>
 		</div>
 	</div>
@@ -41,7 +42,7 @@
 const props = defineProps<{
 	transaction: Transaction;
 }>();
-const emit = defineEmits(["deleteTransaction", "editTransaction"]);
+const emit = defineEmits(["deleted", "edited"]);
 
 const isIncome = computed(() => props.transaction.type === "Income");
 const icon = computed(() =>
@@ -63,7 +64,7 @@ const items = [
 		{
 			label: "Delete",
 			icon: "i-heroicons-trash-20-solid",
-			click: deletTransaction,
+			click: deleteTransaction,
 		},
 	],
 ];
@@ -72,7 +73,7 @@ const items = [
 const isLoading = ref(false);
 const { toastSuccess, toastError } = useAppToast();
 const supabase = useSupabaseClient();
-async function deletTransaction() {
+async function deleteTransaction() {
 	isLoading.value = true;
 	try {
 		await supabase.from("transactions").delete().eq("id", props.transaction.id);
@@ -80,7 +81,7 @@ async function deletTransaction() {
 		toastSuccess({
 			title: "Transaction deleted",
 		});
-		emit("deleteTransaction", props.transaction.id);
+		emit("deleted", props.transaction.id);
 	} catch (error) {
 		toastError({
 			title: "Transaction was not deleted",

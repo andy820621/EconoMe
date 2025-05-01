@@ -1,9 +1,10 @@
 <template>
 	<div class="grid grid-cols-6 gap-8">
-		<UVerticalNavigation
-			:links="links"
+		<UNavigationMenu
+			orientation="vertical"
+			:items="links"
 			class="col-span-2"
-		></UVerticalNavigation>
+		></UNavigationMenu>
 		<div class="col-span-4">
 			<NuxtPage />
 		</div>

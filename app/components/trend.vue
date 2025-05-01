@@ -13,9 +13,9 @@
 				<UIcon
 					:name="icon"
 					class="w-6 h-6"
-					:class="{ green: trendingUp, red: !trendingUp }"
+					:class="trendingUp ? 'text-success' : 'text-error'"
 				/>
-				<div class="text-gray-500 dark:text-gray-400">
+				<div class="text-neutral-500 dark:text-neutral-400">
 					{{ percentageTrend }} vs last period
 				</div>
 			</div>
@@ -54,12 +54,3 @@ const percentageTrend = computed(() => {
 	return Math.ceil(ratio) + "%";
 });
 </script>
-
-<style scoped>
-.green {
-	@apply text-green-600 dark:text-green-400;
-}
-.red {
-	@apply text-red-600 dark:text-red-400;
-}
-</style>

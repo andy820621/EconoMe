@@ -3,7 +3,7 @@
 		<template #header> Sign-in to Finance Tracker </template>
 
 		<form @submit.prevent="handleLogin">
-			<UFormGroup
+			<UFormField
 				label="Email"
 				name="email"
 				class="mb-4"
@@ -11,12 +11,12 @@
 				help="You will receive an email with the confirmation link."
 			>
 				<UInput v-model="email" type="email" placeholder="Email" required />
-			</UFormGroup>
+			</UFormField>
 
 			<UButton
 				type="submit"
 				variant="solid"
-				color="black"
+				color="neutral"
 				label="Sign-in"
 				:loading="pending"
 				:disabled="pending"
@@ -57,10 +57,12 @@ async function handleLogin() {
 	pending.value = true;
 
 	try {
+		const redirectTo = new URL("/confirm", redirectUrl).toString();
+
 		const { data, error } = await supabase.auth.signInWithOtp({
 			email: email.value,
 			options: {
-				emailRedirectTo: `${redirectUrl}/confirm`,
+				emailRedirectTo: redirectTo,
 			},
 		});
 

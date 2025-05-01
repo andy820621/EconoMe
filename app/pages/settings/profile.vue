@@ -1,22 +1,22 @@
 <template>
 	<UForm :state="state" :schema="schema" @submit="saveProfile">
-		<UFormGroup class="mb-4" label="Full Name" name="name">
+		<UFormField class="mb-4" label="Full Name" name="name">
 			<UInput v-model="state.name" />
-		</UFormGroup>
+		</UFormField>
 
-		<UFormGroup
+		<UFormField
 			class="mb-4"
 			label="Email"
 			name="email"
 			help="You will receive a confirmation email on both the old and new addresses if you modify the email addresses."
 		>
 			<UInput v-model="state.email" />
-		</UFormGroup>
+		</UFormField>
 
 		<UButton
 			type="submit"
 			variant="solid"
-			color="black"
+			color="neutral"
 			label="Save"
 			:loading="pending"
 			:disabled="pending"

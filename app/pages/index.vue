@@ -1,11 +1,8 @@
 <template>
-	<section class="flex items-center justify-between mb-8">
+	<section class="flex items-center justify-between mb-10">
 		<h1 class="text-4xl font-extrabold">Summary</h1>
 		<div>
-			<USelectMenu
-				v-model="selectedView"
-				:options="[...transactionViewOptions]"
-			/>
+			<USelectMenu v-model="selectedView" :items="selectMenuItems" />
 		</div>
 	</section>
 
@@ -28,7 +25,7 @@
 		/>
 		<Trend
 			color="green"
-			title="Incestments"
+			title="Investments"
 			:amount="4000"
 			:last-amount="3000"
 			:loading="pending"
@@ -45,17 +42,19 @@
 	<section class="flex justify-between mb-10">
 		<div>
 			<h2 class="text-2xl font-extrabold">Transactions</h2>
-			<div class="text-gray-500 dark:text-gray-400">
+			<div class="text-neutral-500 dark:text-neutral-400">
 				You have {{ incomeCount }} incomes and {{ expenseCount }} expenses this
 				period.
 			</div>
 		</div>
 		<div>
-			<TransactionModal v-model:is-open="isOpen" @submitted="refresh" />
+			<TransactionModal v-model="isOpen" @saved="refresh" />
+
+			<!-- variant="solid" -->
 			<UButton
 				icon="i-heroicons-plus-circle"
-				color="white"
-				variant="solid"
+				color="neutral"
+				variant="outline"
 				label="Add"
 				@click="isOpen = true"
 			/>
@@ -69,8 +68,8 @@
 				v-for="transaction in transactionsOnDay"
 				:key="transaction.id"
 				:transaction="transaction"
-				@deleteTransaction="refresh"
-				@editTransaction="refresh"
+				@deleted="refresh"
+				@edited="refresh"
 			/>
 		</div>
 	</section>
@@ -85,8 +84,11 @@ import { transactionViewOptions } from "~/constants";
 useHead({
 	title: "Home",
 });
-
 const user = useSupabaseUser();
+const selectMenuItems = transactionViewOptions.map((item) => ({
+	label: item,
+	value: item,
+}));
 const selectedView = ref(
 	user.value?.user_metadata?.transaction_view ?? transactionViewOptions[1]
 );
@@ -104,8 +106,6 @@ const {
 		grouped: { byDate },
 	},
 } = useFetchTransactions(current);
-await refresh();
-
 const {
 	refresh: refreshPrevious,
 	transactions: {
@@ -113,7 +113,8 @@ const {
 		expenseTotal: previousExpenseTotal,
 	},
 } = useFetchTransactions(previous);
-await refreshPrevious();
+
+await Promise.all([refresh(), refreshPrevious()]);
 
 // Modal for add transaction
 const isOpen = ref(false);

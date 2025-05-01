@@ -4,7 +4,9 @@ export function useRedirectIfAuthenticated(url = "/") {
 	watch(
 		user,
 		(userData) => {
-			if (userData) return navigateTo(url);
+			if (userData) {
+				return navigateTo(url);
+			}
 		},
 		{ immediate: true }
 	);

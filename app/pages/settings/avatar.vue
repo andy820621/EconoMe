@@ -1,29 +1,29 @@
 <template>
 	<div>
 		<div class="mb-4">
-			<UFormGroup
+			<UFormField
 				label="Current avatar"
 				class="w-full"
 				help="This would be blank by default"
 			>
 				<UAvatar :src="avatarUrl" size="3xl" imgClass="object-cover" />
-			</UFormGroup>
+			</UFormField>
 		</div>
 
 		<div class="mb-4">
-			<UFormGroup
+			<UFormField
 				label="New avatar"
 				class="w-full"
 				name="avatar"
 				help="After choosing an image click Save to actually upload the new avatar"
 			>
 				<UInput type="file" ref="fileInput" />
-			</UFormGroup>
+			</UFormField>
 		</div>
 
 		<UButton
 			type="submit"
-			color="black"
+			color="neutral"
 			variant="solid"
 			label="Save"
 			:loading="uploading"

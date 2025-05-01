@@ -1,40 +1,28 @@
 <template>
-	<UModal v-model="isOpen" @update:model-value="handelUpdateIsOpen">
-		<UCard
-			:ui="{
-				ring: '',
-				divide: 'divide-y divide-gray-100 dark:divide-gray-800',
-			}"
-		>
-			<template #header>
-				{{ isEditing ? "Edit" : "Add" }} Transaction
-			</template>
-
-			<UForm
-				:schema="schema"
-				:state="state"
-				class="space-y-4"
-				@submit="onSubmit"
-				ref="form"
-			>
-				<UFormGroup required label="Transaction Type" name="type" class="mb-4">
+	<UModal
+		v-model:open="isOpen"
+		:title="isEditing ? 'Edit' : 'Add' + ' Transaction'"
+	>
+		<template #body>
+			<UForm :state="state" :schema="schema" ref="form" @submit="save">
+				<UFormField required label="Transaction Type" name="type" class="mb-4">
 					<USelect
 						:disabled="isEditing"
-						placeholder="Select a transaction Type"
+						placeholder="Select the transaction type"
 						v-model="state.type"
-						:options="transactionTypes"
+						:items="transactionTypes"
 					/>
-				</UFormGroup>
+				</UFormField>
 
-				<UFormGroup label="Amount" required name="amount" class="mb-4">
+				<UFormField label="Amount" required name="amount" class="mb-4">
 					<UInput
 						type="number"
 						placeholder="Amount"
 						v-model.number="state.amount"
 					/>
-				</UFormGroup>
+				</UFormField>
 
-				<UFormGroup
+				<UFormField
 					label="Transaction date"
 					required
 					name="created_at"
@@ -45,18 +33,18 @@
 						icon="i-heroicons-calendar-days-20-solid"
 						v-model="state.created_at"
 					/>
-				</UFormGroup>
+				</UFormField>
 
-				<UFormGroup
+				<UFormField
 					label="Description"
 					hint="Optional"
 					name="description"
 					class="mb-4"
 				>
-					<UInput placeholder="Descriotion" v-model="state.description" />
-				</UFormGroup>
+					<UInput placeholder="Description" v-model="state.description" />
+				</UFormField>
 
-				<UFormGroup
+				<UFormField
 					label="Category"
 					required
 					name="category"
@@ -69,48 +57,50 @@
 						:options="categories"
 						clearable
 					/>
-				</UFormGroup>
+				</UFormField>
+			</UForm>
+		</template>
 
+		<template #footer>
+			<div class="flex justify-end">
 				<UButton
 					type="submit"
-					color="black"
+					color="neutral"
 					variant="solid"
 					label="Save"
 					:loading="isLoading"
+					@click="form?.submit()"
 				/>
-			</UForm>
-		</UCard>
+			</div>
+		</template>
 	</UModal>
 </template>
 
 <script setup lang="ts">
-import { categories, transactionTypes } from "@/constants";
+import { categories, transactionTypes } from "~/constants";
 import type { Database } from "~/lib/database.types";
 import { z } from "zod";
 import { format } from "date-fns";
-import type { FormSubmitEvent } from "@nuxt/ui/dist/runtime/types/form";
 
-interface Props {
+const props = defineProps<{
+	modelValue: boolean;
 	transaction?: Transaction;
-}
+}>();
+const isEditing = computed(() => !!props.transaction);
+const emit = defineEmits(["update:modelValue", "saved"]);
 
-const props = defineProps<Props>();
-
-const isEditing = computed(() => "transaction" in props);
-
-const emit = defineEmits(["submitted"]);
-
-const isOpen = defineModel<boolean>("isOpen", { required: true });
-
-function handelUpdateIsOpen(value: boolean) {
-	if (!value) resetForm();
-}
+const isOpen = computed({
+	get: () => props.modelValue,
+	set: (value) => {
+		if (!value) resetForm();
+		emit("update:modelValue", value);
+	},
+});
 
 // Form Part
 const isLoading = ref(false);
 const form = ref();
-const defautSchema = z.object({
-	id: z.number().optional(),
+const defaultSchema = z.object({
 	amount: z.number().positive("Amount needs to be more than 0"),
 	created_at: z.string(),
 	description: z.string().optional(),
@@ -121,15 +111,15 @@ const expenseSchema = z.object({
 	category: z.enum(categories as [string, ...string[]]),
 });
 const investmentSchema = z.object({ type: z.literal("Investment") });
-const sacingSchema = z.object({ type: z.literal("Saving") });
+const savingSchema = z.object({ type: z.literal("Saving") });
 
 const schema = z.intersection(
-	defautSchema,
+	defaultSchema,
 	z.discriminatedUnion("type", [
 		incomeSchema,
 		expenseSchema,
 		investmentSchema,
-		sacingSchema,
+		savingSchema,
 	])
 );
 type Schema = z.output<typeof schema>;
@@ -151,12 +141,12 @@ const initialState = isEditing.value
 			description: undefined,
 			category: undefined,
 	  };
-const state = reactive({ ...initialState });
+const state = ref({ ...initialState });
 
 const supabase = useSupabaseClient<Database>();
 const { toastSuccess, toastError } = useAppToast();
-async function onSubmit(event: FormSubmitEvent<Schema>) {
-	console.log("onSubmit", event.data);
+
+async function save() {
 	if (form.value.errors.length) return;
 
 	isLoading.value = true;
@@ -165,30 +155,40 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 		const { error } = await supabase
 			.from("transactions")
 			.upsert(
-				isEditing.value ? { ...state, id: props.transaction?.id } : { ...state }
+				isEditing.value
+					? { ...state.value, id: props.transaction?.id }
+					: { ...state.value }
 			);
 
 		if (!error) {
 			toastSuccess({
-				title: "Transaction added",
+				title: "Transaction saved",
 			});
 			isOpen.value = false;
-			emit("submitted");
+			emit("saved");
 			return;
 		}
+
 		throw error;
 	} catch (e) {
-		toastError({
-			title: "Transaction not submitted",
-			description: (e as Error).message,
-		});
+		if (e instanceof Error) {
+			toastError({
+				title: "Transaction not saved",
+				description: e.message,
+			});
+		} else {
+			toastError({
+				title: "Transaction not saved",
+				description: "發生未知錯誤",
+			});
+		}
 	} finally {
 		isLoading.value = false;
 	}
 }
 
-function resetForm() {
-	Object.assign(state, initialState);
+const resetForm = () => {
+	Object.assign(state.value, initialState);
 	form.value.clear();
-}
+};
 </script>
