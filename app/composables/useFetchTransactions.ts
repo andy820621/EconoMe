@@ -10,6 +10,9 @@ export function useFetchTransactions(
 	const supabase = useSupabaseClient<Database>(); // init supabase client
 	const transactions = ref<Transaction[]>([]);
 	const pending = ref(false);
+	const isMounted = ref(false);
+
+	onMounted(() => (isMounted.value = true));
 
 	// income / expense
 	const income = computed(() =>
@@ -46,42 +49,59 @@ export function useFetchTransactions(
 		return grouped;
 	});
 
-	// get data from supabase and pass it as Transaction's props
-	async function fetchTransactions() {
+	// 使用 $fetch 風格的請求
+	async function fetchTransactionsData() {
+		const startDate = startOfDay(period.value.from);
+		const endDate = endOfDay(period.value.to);
+		const formattedStartDate = formatISO(startDate);
+		const formattedEndDate = formatISO(endDate);
+
+		const { data, error } = await supabase
+			.from("transactions")
+			.select()
+			.gte("created_at", formattedStartDate)
+			.lte("created_at", formattedEndDate)
+			.order("created_at", { ascending: false });
+
+		if (error) {
+			console.error("獲取資料錯誤:", error);
+			return [];
+		}
+
+		return data || [];
+	}
+
+	// 初始載入時使用 useAsyncData
+	async function initialFetch() {
 		pending.value = true;
 		try {
-			const { data } = await useAsyncData(
-				`transactions-${period.value.from.toDateString()}-${period.value.to.toDateString()}`,
-				async () => {
-					// 調整為當地時間的開始和結束
-					const startDate = startOfDay(period.value.from);
-					const endDate = endOfDay(period.value.to);
-					// 格式化成 ISO
-					const formattedStartDate = formatISO(startDate);
-					const formattedEndDate = formatISO(endDate);
-
-					const { data, error } = await supabase
-						.from("transactions")
-						.select()
-						.gte("created_at", formattedStartDate)
-						.lte("created_at", formattedEndDate)
-						.order("created_at", { ascending: false });
-
-					if (error) return [];
-					return data;
-				}
-			);
-
+			const cacheKey = `transactions-${period.value.from.toDateString()}-${period.value.to.toDateString()}`;
+			const { data } = await useAsyncData(cacheKey, fetchTransactionsData);
 			return data.value;
 		} catch (error) {
+			console.error("獲取資料時出錯:", error);
+			return [];
+		} finally {
+			pending.value = false;
+		}
+	}
+
+	// 更新時使用 $fetch 風格
+	async function updateFetch() {
+		pending.value = true;
+		try {
+			return await fetchTransactionsData();
+		} catch (error) {
+			console.error("獲取資料時出錯:", error);
+			return [];
 		} finally {
 			pending.value = false;
 		}
 	}
 
 	async function refresh() {
-		const transactionsResult = await fetchTransactions();
-		if (transactionsResult) transactions.value = transactionsResult;
+		const result = isMounted.value ? await updateFetch() : await initialFetch();
+		if (result) transactions.value = result;
 	}
 
 	watch(period, async () => await refresh());

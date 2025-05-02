@@ -1,8 +1,51 @@
+<script setup lang="ts">
+import { transactionViewOptions } from "~/constants";
+
+useHead({
+	title: "Home",
+});
+
+const user = useSupabaseUser();
+
+const transactionViewArray = [...transactionViewOptions];
+
+const selectedView = ref(
+	user.value?.user_metadata?.transaction_view ?? transactionViewArray[1]
+);
+
+const { current, previous } = useSelectedTimePeriod(selectedView);
+
+const {
+	pending,
+	refresh,
+	transactions: {
+		incomeTotal,
+		expenseTotal,
+		incomeCount,
+		expenseCount,
+		grouped: { byDate },
+	},
+} = useFetchTransactions(current);
+
+const {
+	refresh: refreshPrevious,
+	transactions: {
+		incomeTotal: previousIncomeTotal,
+		expenseTotal: previousExpenseTotal,
+	},
+} = useFetchTransactions(previous);
+
+await Promise.all([refresh(), refreshPrevious()]);
+
+// Modal for add transaction
+const isOpen = ref(false);
+</script>
+
 <template>
 	<section class="flex items-center justify-between mb-10">
 		<h1 class="text-4xl font-extrabold">Summary</h1>
 		<div>
-			<USelectMenu v-model="selectedView" :items="selectMenuItems" />
+			<USelectMenu v-model="selectedView" :items="transactionViewArray" />
 		</div>
 	</section>
 
@@ -62,60 +105,31 @@
 	</section>
 
 	<section v-if="!pending">
-		<div v-for="(transactionsOnDay, date) in byDate" :key="date" class="mb-10">
-			<DailyTransactionSummary :date="date" :transactions="transactionsOnDay" />
-			<Transaction
-				v-for="transaction in transactionsOnDay"
-				:key="transaction.id"
-				:transaction="transaction"
-				@deleted="refresh"
-				@edited="refresh"
-			/>
+		<div v-if="Object.keys(byDate).length === 0" class="text-center py-10">
+			<p>No transactions for this period.</p>
 		</div>
+
+		<template v-else>
+			<div
+				v-for="(transactionsOnDay, date) in byDate"
+				:key="date"
+				class="mb-10"
+			>
+				<DailyTransactionSummary
+					:date="date"
+					:transactions="transactionsOnDay"
+				/>
+				<Transaction
+					v-for="transaction in transactionsOnDay"
+					:key="transaction.id"
+					:transaction="transaction"
+					@deleted="refresh"
+					@edited="refresh"
+				/>
+			</div>
+		</template>
 	</section>
 	<section v-else>
 		<USkeleton class="h-8 w-full mb-2" v-for="i in 4" :key="i" />
 	</section>
 </template>
-
-<script setup lang="ts">
-import { transactionViewOptions } from "~/constants";
-
-useHead({
-	title: "Home",
-});
-const user = useSupabaseUser();
-const selectMenuItems = transactionViewOptions.map((item) => ({
-	label: item,
-	value: item,
-}));
-const selectedView = ref(
-	user.value?.user_metadata?.transaction_view ?? transactionViewOptions[1]
-);
-
-const { current, previous } = useSelectedTimePeriod(selectedView);
-
-const {
-	pending,
-	refresh,
-	transactions: {
-		incomeTotal,
-		expenseTotal,
-		incomeCount,
-		expenseCount,
-		grouped: { byDate },
-	},
-} = useFetchTransactions(current);
-const {
-	refresh: refreshPrevious,
-	transactions: {
-		incomeTotal: previousIncomeTotal,
-		expenseTotal: previousExpenseTotal,
-	},
-} = useFetchTransactions(previous);
-
-await Promise.all([refresh(), refreshPrevious()]);
-
-// Modal for add transaction
-const isOpen = ref(false);
-</script>

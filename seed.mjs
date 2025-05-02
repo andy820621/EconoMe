@@ -2,12 +2,11 @@ import { createClient } from "@supabase/supabase-js";
 import { faker } from "@faker-js/faker";
 import "dotenv/config";
 
-const SUPABASE_API_SERVICE_ROLE = ""; //! Replace with your Supabase API service role, but don't forget to make sure not to show it in public. (ex: delete this value or add this file to .gitignore before push to GitHub)
-
 const supabase = createClient(
 	process.env.SUPABASE_URL,
-	// process.env.SUPABASE_KEY, {
-	SUPABASE_API_SERVICE_ROLE,
+	// process.env.SUPABASE_KEY,
+	// {
+	process.env.SUPABASE_API_SERVICE_ROLE,
 	{
 		auth: { persistSession: false },
 	}
@@ -18,6 +17,7 @@ const {
 	data: { users },
 	error,
 } = await supabase.auth.admin.listUsers();
+
 const userIds = users.map((user) => user.id);
 
 async function seedTransactions() {
