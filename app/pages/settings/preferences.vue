@@ -26,6 +26,10 @@
 import { z } from "zod";
 import { transactionViewOptions } from "~/constants";
 
+useHead({
+	title: "Preferences",
+});
+
 const supabase = useSupabaseClient<Database>();
 const user = useSupabaseUser();
 const { toastSuccess, toastError } = useAppToast();

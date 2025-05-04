@@ -20,10 +20,10 @@
 			<div>
 				<UDropdownMenu :items="items" :popper="{ placement: 'bottom-start' }">
 					<!-- variant="ghost" -->
+					<!-- label="Options" -->
 					<UButton
 						color="neutral"
 						variant="outline"
-						label="Options"
 						trailing-icon="i-heroicons-ellipsis-horizontal"
 						:loading="isLoading"
 					/>
@@ -39,6 +39,8 @@
 </template>
 
 <script setup lang="ts">
+import type { DropdownMenuItem } from "@nuxt/ui";
+
 const props = defineProps<{
 	transaction: Transaction;
 }>();
@@ -54,17 +56,17 @@ const iconColor = computed(() =>
 
 const { currency } = useCurrency(props.transaction.amount);
 
-const items = [
+const items: DropdownMenuItem[][] = [
 	[
 		{
 			label: "Edit",
 			icon: "i-heroicons-pencil-square-20-solid",
-			click: () => (isOpen.value = true),
+			onSelect: () => (isOpen.value = true),
 		},
 		{
 			label: "Delete",
 			icon: "i-heroicons-trash-20-solid",
-			click: deleteTransaction,
+			onSelect: deleteTransaction,
 		},
 	],
 ];
@@ -74,6 +76,8 @@ const isLoading = ref(false);
 const { toastSuccess, toastError } = useAppToast();
 const supabase = useSupabaseClient();
 async function deleteTransaction() {
+	console.log("deleteTransaction");
+
 	isLoading.value = true;
 	try {
 		await supabase.from("transactions").delete().eq("id", props.transaction.id);
@@ -81,6 +85,7 @@ async function deleteTransaction() {
 		toastSuccess({
 			title: "Transaction deleted",
 		});
+
 		emit("deleted", props.transaction.id);
 	} catch (error) {
 		toastError({

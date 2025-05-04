@@ -34,6 +34,10 @@
 </template>
 
 <script setup lang="ts">
+useHead({
+	title: "Avatar",
+});
+
 const supabase = useSupabaseClient<Database>();
 const user = useSupabaseUser();
 // We need to get the actual avatar URL

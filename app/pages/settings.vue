@@ -16,6 +16,10 @@ useHead({
 	title: "Settings",
 });
 
+definePageMeta({
+	redirect: "/settings/profile",
+});
+
 const links = [
 	{
 		label: "Profile",
@@ -26,8 +30,8 @@ const links = [
 		to: "/settings/avatar",
 	},
 	{
-		label: "Settings",
-		to: "/settings/settings",
+		label: "Preferences",
+		to: "/settings/preferences",
 	},
 ];
 </script>

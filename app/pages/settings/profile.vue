@@ -27,6 +27,10 @@
 <script setup lang="ts">
 import { z } from "zod";
 
+useHead({
+	title: "Profile",
+});
+
 const supabase = useSupabaseClient<Database>();
 const user = useSupabaseUser();
 
