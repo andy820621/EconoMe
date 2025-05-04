@@ -1,4 +1,4 @@
-export const transactionViewOptions = [
+export const transactionViewOptions: [string, ...string[]] = [
 	"Yearly",
 	"Monthly",
 	"Weekly",
@@ -7,4 +7,9 @@ export const transactionViewOptions = [
 
 export const categories = ["Food", "Housing", "Car", "Entertainment", "Other"];
 
-export const transactionTypes = ["Income", "Expense", "Saving", "Investment"];
+export const transactionTypes = [
+	"Income",
+	"Expense",
+	"Saving",
+	"Investment",
+] as const;

@@ -4,7 +4,7 @@
 			<UFormField
 				label="Current avatar"
 				class="w-full"
-				help="This would be blank by default"
+				:help="avatarUrl ? undefined : 'This would be blank by default'"
 			>
 				<UAvatar :src="avatarUrl" size="3xl" imgClass="object-cover" />
 			</UFormField>
@@ -17,7 +17,29 @@
 				name="avatar"
 				help="After choosing an image click Save to actually upload the new avatar"
 			>
-				<UInput type="file" ref="fileInput" />
+				<div class="flex items-center gap-4">
+					<!-- 左側預覽區域 -->
+					<div
+						v-if="previewUrl"
+						class="flex-shrink-0 w-fit h-fit flex items-center justify-center"
+					>
+						<UAvatar
+							:src="previewUrl"
+							size="lg"
+							imgClass="object-cover w-full h-full"
+						/>
+					</div>
+
+					<!-- 文件輸入 -->
+					<div class="flex-grow">
+						<UInput
+							type="file"
+							ref="fileInput"
+							accept="image/jpeg, image/png, image/gif, image/webp"
+							@change="handleFileChange"
+						/>
+					</div>
+				</div>
 			</UFormField>
 		</div>
 
@@ -47,11 +69,33 @@ const { url: avatarUrl } = useAvatarUrl();
 
 const uploading = ref(false);
 const fileInput = ref();
+const previewUrl = ref();
 
-const saveAvatar = async () => {
-	const file = fileInput.value.input.files[0];
+function handleFileChange(event: Event) {
+	const target = event.target as HTMLInputElement;
+
+	if (target.files && target.files.length > 0) {
+		const file = target.files[0];
+		if (!file) {
+			previewUrl.value = undefined;
+			return;
+		}
+		const imageUrl = URL.createObjectURL(file);
+		previewUrl.value = imageUrl ?? undefined;
+	} else {
+		previewUrl.value = undefined;
+	}
+}
+
+async function saveAvatar() {
+	const file = fileInput.value?.inputRef?.files[0];
 	if (!file) {
 		toastError({ title: "Select a file to upload avatar first!" });
+		return;
+	}
+
+	if (file.size > 2 * 1024 * 1024) {
+		toastError({ title: "File size should be less than 2MB" });
 		return;
 	}
 
@@ -70,11 +114,19 @@ const saveAvatar = async () => {
 		if (error) throw error;
 
 		// Update the user metadata with the avatar URL
-		await supabase.auth.updateUser({
+		const { error: updateError } = await supabase.auth.updateUser({
 			data: {
 				avatar_url: fileName,
 			},
 		});
+
+		if (updateError) {
+			toastError({
+				title: "Error updating user metadata",
+				description: updateError.message,
+			});
+			throw updateError;
+		}
 
 		// remove the old avatar file
 		if (currentAvatarUrl) {
@@ -84,7 +136,7 @@ const saveAvatar = async () => {
 			if (error) throw error;
 		}
 
-		fileInput.value.input.value = null; // Reset the file input
+		if (fileInput.value?.inputRef) fileInput.value.inputRef.value = null;
 
 		toastSuccess({
 			title: "Avatar uploaded",
@@ -97,5 +149,5 @@ const saveAvatar = async () => {
 	} finally {
 		uploading.value = false;
 	}
-};
+}
 </script>

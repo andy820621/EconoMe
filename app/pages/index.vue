@@ -7,10 +7,8 @@ useHead({
 
 const user = useSupabaseUser();
 
-const transactionViewArray = [...transactionViewOptions];
-
 const selectedView = ref(
-	user.value?.user_metadata?.transaction_view ?? transactionViewArray[1]
+	user.value?.user_metadata?.transaction_view ?? transactionViewOptions[1]
 );
 
 const { current, previous } = useSelectedTimePeriod(selectedView);
@@ -45,7 +43,7 @@ const isOpen = ref(false);
 	<section class="flex items-center justify-between mb-10">
 		<h1 class="text-4xl font-extrabold">Summary</h1>
 		<div>
-			<USelectMenu v-model="selectedView" :items="transactionViewArray" />
+			<USelectMenu v-model="selectedView" :items="transactionViewOptions" />
 		</div>
 	</section>
 

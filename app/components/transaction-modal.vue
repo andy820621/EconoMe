@@ -1,7 +1,7 @@
 <template>
 	<UModal
 		v-model:open="isOpen"
-		:title="isEditing ? 'Edit' : 'Add' + ' Transaction'"
+		:title="(isEditing ? 'Edit' : 'Add') + ' Transaction'"
 	>
 		<template #body>
 			<UForm :state="state" :schema="schema" ref="form" @submit="save">
