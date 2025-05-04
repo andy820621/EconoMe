@@ -9,9 +9,9 @@
 			</div>
 
 			<div>
-				<UBadge color="neutral" variant="outline" v-if="transaction.category">{{
-					transaction.category
-				}}</UBadge>
+				<UBadge color="neutral" variant="outline" v-if="transaction.category"
+					>{{ transaction.category }}
+				</UBadge>
 			</div>
 		</div>
 
@@ -53,8 +53,8 @@ const icon = computed(() =>
 const iconColor = computed(() =>
 	isIncome.value ? "text-green-600" : "text-red-600"
 );
-
-const { currency } = useCurrency(props.transaction.amount);
+const amount = computed(() => props.transaction.amount);
+const { currency } = useCurrency(amount);
 
 const items: DropdownMenuItem[][] = [
 	[
