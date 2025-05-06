@@ -1,75 +1,144 @@
-# Nuxt 3 Minimal Starter
+# Finance Tracker
 
-Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+## 專案簡介
 
-## Setup
+Finance Tracker 是一個基於 Nuxt 開發的財務追蹤應用程式，旨在幫助使用者記錄和分析個人財務狀況。
 
-Make sure to install the dependencies:
+## 技術堆疊
 
-```bash
-# npm
-npm install
+- **前端框架**: Nuxt 3 (基於 Vue 3 的 SSR 框架)
+- **語言**: TypeScript
+- **樣式**: Tailwind CSS
+- **後端服務**: Supabase (資料庫與認證服務)
+- **其他工具**:
+  - date-fns: 日期處理
+  - zod: 表單驗證
+  - @faker-js/faker: 測試資料生成
 
-# pnpm
-pnpm install
+## 功能
 
-# yarn
-yarn install
+1. **使用者認證**:
 
-# bun
-bun install
-```
+   - 登入/註冊功能
+   - 頭像上傳與自訂
 
-## Development Server
+2. **交易記錄管理**:
 
-Start the development server on `http://localhost:3000`:
+   - 新增不同類型交易（收入、支出、儲蓄、投資）
+   - 編輯和刪除現有交易
+   - 為支出交易分類（食物、住宿、交通、娛樂等）
 
-```bash
-# npm
-npm run dev
+3. **財務摘要與分析**:
 
-# pnpm
-pnpm run dev
+   - 顯示收入與支出趨勢
+   - 比較當前期間與前一期間的數據
+   - 計算百分比變化
 
-# yarn
-yarn dev
+4. **時間範圍篩選**:
+   - 支援不同時間檢視（每日、每週、每月、每年）
+   - 根據選擇的時間範圍顯示相關交易
 
-# bun
-bun run dev
-```
+## 專案架構
 
-## Production
+### 頁面結構
 
-Build the application for production:
+- `app/pages/index.vue`: 主頁面，顯示財務摘要及交易列表
+- `app/pages/confirm.vue`: 認證確認頁面
+- `app/pages/settings/avatar.vue`: 頭像設定頁面
 
-```bash
-# npm
-npm run build
+### 元件結構
 
-# pnpm
-pnpm run build
+- **UI 元件**:
+  - `app/components/app-header.vue`: 應用程式頂部導航
+  - `app/components/trend.vue`: 顯示財務趨勢
+  - `app/components/transaction-modal.vue`: 新增/編輯交易的彈出視窗
+  - `app/components/daily-transaction-summary.vue`: 每日交易摘要
 
-# yarn
-yarn build
+### 工具函數
 
-# bun
-bun run build
-```
+- `app/composables/useFetchTransactions.ts`: 處理交易資料獲取與分組
+- `app/composables/useSelectedTimePeriod.ts`: 管理時間範圍選擇
+- `useCurrency`: 處理貨幣格式化
 
-Locally preview production build:
+### 資料模型
 
-```bash
-# npm
-npm run preview
+主要的資料模型是 `Transaction`，包含:
 
-# pnpm
-pnpm run preview
+- `id`: 唯一識別碼
+- `created_at`: 交易日期
+- `amount`: 金額
+- `type`: 交易類型 (Income, Expense, Saving, Investment)
+- `description`: 交易描述
+- `category`: 分類 (僅適用於支出)
+- `user_id`: 關聯使用者 ID
 
-# yarn
-yarn preview
+## 進行中的優化與功能擴展
 
-# bun
-bun run preview
-```
+### 效能優化
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+1. **資料載入策略統一**:
+
+   - 統一使用資料載入方法，提升一致性
+   - 實作虛擬滾動或分頁加載，處理大量交易記錄時的效能問題
+
+2. **資料查詢優化**:
+   - 在 `useFetchTransactions` 中加入索引和更精確的查詢條件
+   - 實作資料快取機制，減少重複請求
+
+### 使用者體驗改進
+
+1. **進階篩選與搜尋功能**:
+
+   - 支援依類別、金額範圍等條件篩選
+   - 提供交易記錄搜尋功能
+
+2. **交易記錄排序選項**:
+
+   - 依日期、金額、類別等不同條件排序
+
+3. **互動式儀表板**:
+   - 可拖曳重新排列與自訂的小工具元件
+
+### 新功能
+
+1. **預算管理系統**:
+
+   - 允許使用者設定每月/每週預算
+   - 預算接近上限時發出警告通知
+
+2. **資料視覺化增強**:
+
+   - 新增支出類別餅圖
+   - 長期收入/支出趨勢圖表
+
+3. **定期交易功能**:
+
+   - 支援每日、每週、每月等定期交易
+
+4. **財務目標追蹤**:
+
+   - 設定儲蓄或投資目標
+   - 視覺化呈現達成進度
+
+5. **匯入/匯出功能**:
+
+   - 支援 CSV 格式匯入/匯出
+   - 與銀行或信用卡對帳單整合
+
+6. **多貨幣支援**:
+
+   - 允許記錄不同貨幣的交易
+   - 自動匯率轉換功能
+
+7. **自訂交易類別**:
+
+   - 允許使用者建立和管理自己的交易類別
+
+8. **提醒系統**:
+
+   - 定期帳單提醒
+   - 財務目標達成通知
+
+9. **協作功能**:
+   - 家庭成員共享財務追蹤
+   - 權限管理系統
