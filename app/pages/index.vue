@@ -39,7 +39,11 @@ const {
 	},
 } = useFetchTransactions(previous);
 
-await Promise.all([refresh(), refreshPrevious()]);
+await handleRefresh();
+
+async function handleRefresh() {
+	await Promise.all([refresh(), refreshPrevious()]);
+}
 
 // Modal for add transaction
 const isOpen = ref(false);
@@ -89,13 +93,20 @@ const isOpen = ref(false);
 	<section class="flex justify-between mb-10">
 		<div>
 			<h2 class="text-2xl font-extrabold">Transactions</h2>
-			<div class="text-neutral-500 dark:text-neutral-400">
-				You have {{ incomeCount }} incomes and {{ expenseCount }} expenses this
-				period.
+
+			<div class="text-neutral-500 dark:text-neutral-400 mt-2">
+				<div>
+					You have {{ incomeCount }} incomes and {{ expenseCount }} expenses
+					this period.
+				</div>
+				<div>
+					Additionally, {{ investmentCount }} investments and
+					{{ savingCount }} savings.
+				</div>
 			</div>
 		</div>
 		<div>
-			<TransactionModal v-model="isOpen" @saved="refresh" />
+			<TransactionModal v-model="isOpen" @saved="handleRefresh" />
 
 			<!-- variant="solid" -->
 			<UButton
@@ -127,8 +138,8 @@ const isOpen = ref(false);
 					v-for="transaction in transactionsOnDay"
 					:key="transaction.id"
 					:transaction="transaction"
-					@deleted="refresh"
-					@edited="refresh"
+					@deleted="handleRefresh"
+					@edited="handleRefresh"
 				/>
 			</div>
 		</template>
