@@ -5,7 +5,7 @@ export const transactionViewOptions: [string, ...string[]] = [
 	"Daily",
 ] as const;
 
-export const categories = [
+export const categories: [string, ...string[]] = [
 	"Food",
 	"Housing",
 	"Car",
