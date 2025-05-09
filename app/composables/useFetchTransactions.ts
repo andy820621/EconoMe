@@ -14,6 +14,13 @@ export function useFetchTransactions(
 
 	onMounted(() => (isMounted.value = true));
 
+	watch(transactions, (newValue) => {
+		if (newValue.length > 0) {
+			// 這裡可以進行一些額外的處理，例如更新圖表或其他 UI 元素
+			console.log("Transactions updated:", newValue);
+		}
+	});
+
 	// income / expense
 	const income = computed(() =>
 		transactions.value.filter((t) => t.type === "Income")
@@ -31,6 +38,28 @@ export function useFetchTransactions(
 	);
 	const expenseTotal = computed(() =>
 		expense.value.reduce(
+			(sum, transaction) => sum + (transaction.amount || 0),
+			0
+		)
+	);
+
+	// investment / saving
+	const investment = computed(() =>
+		transactions.value.filter((t) => t.type === "Investment")
+	);
+	const saving = computed(() =>
+		transactions.value.filter((t) => t.type === "Saving")
+	);
+	const investmentCount = computed(() => investment.value.length);
+	const savingCount = computed(() => saving.value.length);
+	const investmentTotal = computed(() =>
+		investment.value.reduce(
+			(sum, transaction) => sum + (transaction.amount || 0),
+			0
+		)
+	);
+	const savingTotal = computed(() =>
+		saving.value.reduce(
 			(sum, transaction) => sum + (transaction.amount || 0),
 			0
 		)
@@ -118,6 +147,12 @@ export function useFetchTransactions(
 			expenseCount,
 			incomeTotal,
 			expenseTotal,
+			investment,
+			saving,
+			investmentCount,
+			savingCount,
+			investmentTotal,
+			savingTotal,
 		},
 		pending,
 		refresh,

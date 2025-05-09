@@ -21,6 +21,10 @@ const {
 		expenseTotal,
 		incomeCount,
 		expenseCount,
+		investmentCount,
+		investmentTotal,
+		savingCount,
+		savingTotal,
 		grouped: { byDate },
 	},
 } = useFetchTransactions(current);
@@ -30,6 +34,8 @@ const {
 	transactions: {
 		incomeTotal: previousIncomeTotal,
 		expenseTotal: previousExpenseTotal,
+		investmentTotal: previousInvestmentTotal,
+		savingTotal: previousSavingTotal,
 	},
 } = useFetchTransactions(previous);
 
@@ -67,15 +73,15 @@ const isOpen = ref(false);
 		<Trend
 			color="green"
 			title="Investments"
-			:amount="4000"
-			:last-amount="3000"
+			:amount="investmentTotal"
+			:last-amount="previousInvestmentTotal"
 			:loading="pending"
 		/>
 		<Trend
 			color="red"
 			title="Saving"
-			:amount="4000"
-			:last-amount="4100"
+			:amount="savingTotal"
+			:last-amount="previousSavingTotal"
 			:loading="pending"
 		/>
 	</section>
