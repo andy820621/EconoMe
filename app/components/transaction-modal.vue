@@ -54,7 +54,7 @@
 					<USelect
 						placeholder="Select a category"
 						v-model="state.category"
-						:options="categories"
+						:items="categories"
 						clearable
 					/>
 				</UFormField>
@@ -108,7 +108,7 @@ const defaultSchema = z.object({
 const incomeSchema = z.object({ type: z.literal("Income") });
 const expenseSchema = z.object({
 	type: z.literal("Expense"),
-	category: z.enum(categories as [string, ...string[]]),
+	category: z.enum(categories),
 });
 const investmentSchema = z.object({ type: z.literal("Investment") });
 const savingSchema = z.object({ type: z.literal("Saving") });
