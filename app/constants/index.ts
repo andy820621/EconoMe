@@ -13,7 +13,7 @@ export const categories: [string, ...string[]] = [
 	"Other",
 ] as const;
 
-export const transactionTypes = [
+export const transactionTypes: [string, ...string[]] = [
 	"Income",
 	"Expense",
 	"Saving",
