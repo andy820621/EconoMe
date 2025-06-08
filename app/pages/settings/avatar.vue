@@ -51,6 +51,17 @@
 			:loading="uploading"
 			:disabled="uploading"
 			@click="saveAvatar"
+			class="mr-3"
+		/>
+
+		<UButton
+			v-if="user?.user_metadata?.custom_avatar_url"
+			color="error"
+			variant="outline"
+			label="Remove Custom Avatar"
+			:loading="removing"
+			:disabled="uploading || removing"
+			@click="removeCustomAvatar"
 		/>
 	</div>
 </template>
@@ -68,6 +79,7 @@ const { toastSuccess, toastError } = useAppToast();
 const { url: avatarUrl } = useAvatarUrl();
 
 const uploading = ref(false);
+const removing = ref(false);
 const fileInput = ref();
 const previewUrl = ref();
 
@@ -104,8 +116,8 @@ async function saveAvatar() {
 
 	try {
 		uploading.value = true;
-		// Grab the current avatar URL
-		const currentAvatarUrl = user.value?.user_metadata?.avatar_url;
+		// Grab the current custom avatar URL
+		const currentCustomAvatarUrl = user.value?.user_metadata?.custom_avatar_url;
 
 		// Upload the image to avatars bucket
 		const { error } = await supabase.storage
@@ -113,10 +125,10 @@ async function saveAvatar() {
 			.upload(fileName, file);
 		if (error) throw error;
 
-		// Update the user metadata with the avatar URL
+		// Update the user metadata with the custom avatar URL
 		const { error: updateError } = await supabase.auth.updateUser({
 			data: {
-				avatar_url: fileName,
+				custom_avatar_url: fileName,
 			},
 		});
 
@@ -128,12 +140,12 @@ async function saveAvatar() {
 			throw updateError;
 		}
 
-		// remove the old avatar file
-		if (currentAvatarUrl) {
+		// remove the old custom avatar file
+		if (currentCustomAvatarUrl) {
 			const { error } = await supabase.storage
 				.from("avatars")
-				.remove([currentAvatarUrl]);
-			if (error) throw error;
+				.remove([currentCustomAvatarUrl]);
+			if (error) console.warn("Failed to remove old avatar:", error);
 		}
 
 		if (fileInput.value?.inputRef) fileInput.value.inputRef.value = null;
@@ -148,6 +160,51 @@ async function saveAvatar() {
 		});
 	} finally {
 		uploading.value = false;
+	}
+}
+
+async function removeCustomAvatar() {
+	if (!user.value?.user_metadata?.custom_avatar_url) return;
+
+	removing.value = true;
+	try {
+		const customAvatarUrl = user.value.user_metadata.custom_avatar_url;
+
+		// Remove the custom avatar metadata
+		const { error: updateError } = await supabase.auth.updateUser({
+			data: {
+				custom_avatar_url: null,
+			},
+		});
+
+		if (updateError) {
+			toastError({
+				title: "Error removing custom avatar",
+				description: updateError.message,
+			});
+			throw updateError;
+		}
+
+		// Remove the file from storage
+		const { error: deleteError } = await supabase.storage
+			.from("avatars")
+			.remove([customAvatarUrl]);
+
+		if (deleteError) {
+			console.warn("Failed to delete avatar file:", deleteError);
+		}
+
+		toastSuccess({
+			title: "Custom avatar removed",
+			description: "Your profile will now show the default or OAuth avatar",
+		});
+	} catch (error: any) {
+		toastError({
+			title: "Error removing avatar",
+			description: error.message,
+		});
+	} finally {
+		removing.value = false;
 	}
 }
 </script>
