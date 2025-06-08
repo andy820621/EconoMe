@@ -7,13 +7,6 @@ useHead({
 
 const user = useSupabaseUser();
 
-// 檢查 URL 中是否有 OAuth code，如果有則清理 URL
-const route = useRoute();
-if (route.query.code) {
-	console.log("OAuth code detected in homepage, cleaning URL...");
-	await navigateTo("/", { replace: true });
-}
-
 const selectedView = ref(
 	user.value?.user_metadata?.transaction_view ?? transactionViewOptions[1]
 );
@@ -64,96 +57,109 @@ const isOpen = ref(false);
 </script>
 
 <template>
-	<section class="flex items-center justify-between mb-10">
-		<h1 class="text-4xl font-extrabold">Summary</h1>
-		<div>
-			<USelectMenu v-model="selectedView" :items="transactionViewOptions" />
-		</div>
-	</section>
+	<!-- 主頁內容 -->
+	<div v-if="user">
+		<section class="flex items-center justify-between mb-10">
+			<h1 class="text-4xl font-extrabold">Summary</h1>
+			<div>
+				<USelectMenu v-model="selectedView" :items="transactionViewOptions" />
+			</div>
+		</section>
 
-	<section
-		class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 sm:gap-16 mb-10"
-	>
-		<Trend
-			color="green"
-			title="Income"
-			:amount="incomeTotal"
-			:last-amount="previousIncomeTotal"
-			:loading="pending"
-		/>
-		<Trend
-			color="red"
-			title="Expense"
-			:amount="expenseTotal"
-			:last-amount="previousExpenseTotal"
-			:loading="pending"
-		/>
-		<Trend
-			color="green"
-			title="Investments"
-			:amount="investmentTotal"
-			:last-amount="previousInvestmentTotal"
-			:loading="pending"
-		/>
-		<Trend
-			color="red"
-			title="Saving"
-			:amount="savingTotal"
-			:last-amount="previousSavingTotal"
-			:loading="pending"
-		/>
-	</section>
+		<section
+			class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 sm:gap-16 mb-10"
+		>
+			<Trend
+				color="green"
+				title="Income"
+				:amount="incomeTotal"
+				:last-amount="previousIncomeTotal"
+				:loading="pending"
+			/>
+			<Trend
+				color="red"
+				title="Expense"
+				:amount="expenseTotal"
+				:last-amount="previousExpenseTotal"
+				:loading="pending"
+			/>
+			<Trend
+				color="green"
+				title="Investments"
+				:amount="investmentTotal"
+				:last-amount="previousInvestmentTotal"
+				:loading="pending"
+			/>
+			<Trend
+				color="red"
+				title="Saving"
+				:amount="savingTotal"
+				:last-amount="previousSavingTotal"
+				:loading="pending"
+			/>
+		</section>
 
-	<section class="flex justify-between mb-10">
-		<div>
-			<h2 class="text-2xl font-extrabold">Transactions</h2>
+		<section class="flex justify-between mb-10">
+			<div>
+				<h2 class="text-2xl font-extrabold">Transactions</h2>
 
-			<div class="text-neutral-500 dark:text-neutral-400 mt-2">
-				<div>
-					You have {{ incomeCount }} incomes and {{ expenseCount }} expenses
-					this period.
-				</div>
-				<div>
-					Additionally, {{ investmentCount }} investments and
-					{{ savingCount }} savings.
+				<div class="text-neutral-500 dark:text-neutral-400 mt-2">
+					<div>
+						You have {{ incomeCount }} incomes and {{ expenseCount }} expenses
+						this period.
+					</div>
+					<div>
+						Additionally, {{ investmentCount }} investments and
+						{{ savingCount }} savings.
+					</div>
 				</div>
 			</div>
-		</div>
-		<div>
-			<TransactionModal v-model="isOpen" @saved="handleRefresh" />
+			<div>
+				<TransactionModal v-model="isOpen" @saved="handleRefresh" />
 
-			<!-- variant="solid" -->
-			<UButton
-				icon="i-heroicons-plus-circle"
-				color="neutral"
-				variant="outline"
-				label="Add"
-				@click="isOpen = true"
-			/>
-		</div>
-	</section>
+				<!-- variant="solid" -->
+				<UButton
+					icon="i-heroicons-plus-circle"
+					color="neutral"
+					variant="outline"
+					label="Add"
+					@click="isOpen = true"
+				/>
+			</div>
+		</section>
 
-	<section v-if="!pending && Object.keys(byDate).length > 0">
-		<div v-for="(transactionsOnDay, date) in byDate" :key="date" class="mb-10">
-			<DailyTransactionSummary :date="date" :transactions="transactionsOnDay" />
-			<Transaction
-				v-for="transaction in transactionsOnDay"
-				:key="transaction.id"
-				:transaction="transaction"
-				@deleted="handleRefresh"
-				@edited="handleRefresh"
-			/>
-		</div>
-	</section>
+		<section v-if="!pending && Object.keys(byDate).length > 0">
+			<div
+				v-for="(transactionsOnDay, date) in byDate"
+				:key="date"
+				class="mb-10"
+			>
+				<DailyTransactionSummary
+					:date="date"
+					:transactions="transactionsOnDay"
+				/>
+				<Transaction
+					v-for="transaction in transactionsOnDay"
+					:key="transaction.id"
+					:transaction="transaction"
+					@deleted="handleRefresh"
+					@edited="handleRefresh"
+				/>
+			</div>
+		</section>
 
-	<section
-		v-else-if="!pending && Object.keys(byDate).length === 0"
-		class="text-center py-10"
-	>
-		<p>No transactions for this period.</p>
-	</section>
+		<section
+			v-else-if="!pending && Object.keys(byDate).length === 0"
+			class="text-center py-10"
+		>
+			<p>No transactions for this period.</p>
+		</section>
 
-	<section v-else>
-		<USkeleton class="h-8 w-full mb-2" v-for="i in 4" :key="i" />
-	</section>
+		<section v-else>
+			<USkeleton class="h-8 w-full mb-2" v-for="i in 4" :key="i" />
+		</section>
+	</div>
+
+	<!-- 未認證用戶（會被中間件重導向） -->
+	<div v-else></div>
 </template>
