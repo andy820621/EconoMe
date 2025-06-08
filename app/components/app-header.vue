@@ -8,9 +8,12 @@
 				<template #account>
 					<div class="text-left">
 						<p>Signed in as</p>
+						<p class="font-medium text-neutral-900 dark:text-white">
+							{{ displayName }}
+						</p>
 						<p
-							v-if="user.email"
-							class="font-medium text-neutral-900 dark:text-white"
+							v-if="user?.email"
+							class="text-xs text-neutral-500 dark:text-neutral-400"
 						>
 							{{ user.email }}
 						</p>
@@ -35,6 +38,7 @@
 const supabase = useSupabaseClient<Database>();
 const user = useSupabaseUser();
 const { url: avatarUrl } = useAvatarUrl();
+const { displayName } = useDisplayName();
 
 const items = [
 	[

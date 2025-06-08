@@ -1,7 +1,12 @@
 <template>
 	<UForm :state="state" :schema="schema" @submit="saveProfile">
-		<UFormField class="mb-4" label="Full Name" name="name">
-			<UInput v-model="state.name" />
+		<UFormField
+			class="mb-4"
+			label="Display Name"
+			name="displayName"
+			help="This name will be shown in your profile. Leave empty to use your OAuth provider name or email as fallback."
+		>
+			<UInput v-model="state.displayName" :placeholder="getNamePlaceholder()" />
 		</UFormField>
 
 		<UFormField
@@ -37,13 +42,24 @@ const user = useSupabaseUser();
 const { toastSuccess, toastError } = useAppToast();
 const pending = ref(false);
 
+// 獲取 OAuth 提供的名稱作為 placeholder
+function getNamePlaceholder() {
+	const oauthName =
+		user.value?.user_metadata?.full_name || user.value?.user_metadata?.name;
+	if (oauthName) {
+		return `${oauthName}`;
+	}
+	const emailPrefix = user.value?.email?.split("@")[0];
+	return emailPrefix ? `${emailPrefix}` : "Enter your display name";
+}
+
 const state = ref({
-	name: user.value?.user_metadata?.full_name,
-	email: user.value?.email,
+	displayName: user.value?.user_metadata?.custom_name || "",
+	email: user.value?.email || "",
 });
 
 const schema = z.object({
-	name: z.string().min(2).optional(),
+	displayName: z.string().optional(),
 	email: z.string().email(),
 });
 
@@ -51,12 +67,14 @@ async function saveProfile() {
 	pending.value = true;
 
 	try {
-		const data = {
-			full_name: state.value.name,
-			email: state.value.email,
+		const data: any = {
+			custom_name: state.value.displayName || null,
 		};
 
-		if (state.value.email === user.value?.email) delete data.email;
+		// 只有當 email 有變更時才包含 email
+		if (state.value.email !== user.value?.email) {
+			data.email = state.value.email;
+		}
 
 		const { error } = await supabase.auth.updateUser({ data });
 

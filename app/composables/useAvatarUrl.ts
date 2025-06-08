@@ -32,7 +32,9 @@ export function useAvatarUrl() {
 
 	function getDefaultAvatar() {
 		const userName =
+			user.value?.user_metadata?.custom_name ||
 			user.value?.user_metadata?.full_name ||
+			user.value?.user_metadata?.name ||
 			user.value?.email?.split("@")[0] ||
 			"User";
 		return `https://ui-avatars.com/api/?name=${encodeURIComponent(
