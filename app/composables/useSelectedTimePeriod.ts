@@ -11,51 +11,61 @@ import {
 } from "date-fns";
 
 export function useSelectedTimePeriod(period: Ref<string>) {
+	const baseDate = ref(new Date());
+
+	onMounted(() => {
+		baseDate.value = new Date();
+	});
+
 	const current = computed(() => {
+		const now = baseDate.value;
+
 		switch (period.value) {
 			case "Yearly":
 				return {
-					from: startOfYear(new Date()),
-					to: endOfYear(new Date()),
+					from: startOfYear(now),
+					to: endOfYear(now),
 				};
 			case "Monthly":
 				return {
-					from: startOfMonth(new Date()),
-					to: endOfMonth(new Date()),
+					from: startOfMonth(now),
+					to: endOfMonth(now),
 				};
 			case "Weekly":
 				return {
-					from: startOfWeek(new Date()),
-					to: endOfWeek(new Date()),
+					from: startOfWeek(now),
+					to: endOfWeek(now),
 				};
 			default: // means Dialy
 				return {
-					from: startOfDay(new Date()),
-					to: endOfDay(new Date()),
+					from: startOfDay(now),
+					to: endOfDay(now),
 				};
 		}
 	});
+
 	const previous = computed(() => {
+		const now = baseDate.value;
 		switch (period.value) {
 			case "Yearly":
 				return {
-					from: startOfYear(sub(new Date(), { years: 1 })),
-					to: endOfYear(sub(new Date(), { years: 1 })),
+					from: startOfYear(sub(now, { years: 1 })),
+					to: endOfYear(sub(now, { years: 1 })),
 				};
 			case "Monthly":
 				return {
-					from: startOfMonth(sub(new Date(), { months: 1 })),
-					to: endOfMonth(sub(new Date(), { months: 1 })),
+					from: startOfMonth(sub(now, { months: 1 })),
+					to: endOfMonth(sub(now, { months: 1 })),
 				};
 			case "Weekly":
 				return {
-					from: startOfWeek(sub(new Date(), { weeks: 1 })),
-					to: endOfWeek(sub(new Date(), { weeks: 1 })),
+					from: startOfWeek(sub(now, { weeks: 1 })),
+					to: endOfWeek(sub(now, { weeks: 1 })),
 				};
 			default: // means Dialy
 				return {
-					from: startOfDay(sub(new Date(), { days: 1 })),
-					to: endOfDay(sub(new Date(), { days: 1 })),
+					from: startOfDay(sub(now, { days: 1 })),
+					to: endOfDay(sub(now, { days: 1 })),
 				};
 		}
 	});

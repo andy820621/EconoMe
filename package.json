@@ -13,6 +13,7 @@
 	},
 	"devDependencies": {
 		"@faker-js/faker": "^8.4.1",
+		"@iconify-json/logos": "^1.2.4",
 		"@iconify-json/lucide": "^1.2.41",
 		"@nuxt/devtools": "latest",
 		"@nuxtjs/supabase": "^1.5.0",

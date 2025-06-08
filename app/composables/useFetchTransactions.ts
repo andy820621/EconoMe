@@ -10,16 +10,6 @@ export function useFetchTransactions(
 	const supabase = useSupabaseClient<Database>(); // init supabase client
 	const transactions = ref<Transaction[]>([]);
 	const pending = ref(false);
-	const isMounted = ref(false);
-
-	onMounted(() => (isMounted.value = true));
-
-	watch(transactions, (newValue) => {
-		if (newValue.length > 0) {
-			// 這裡可以進行一些額外的處理，例如更新圖表或其他 UI 元素
-			console.log("Transactions updated:", newValue);
-		}
-	});
 
 	// income / expense
 	const income = computed(() =>
@@ -100,40 +90,24 @@ export function useFetchTransactions(
 		return data || [];
 	}
 
-	// 初始載入時使用 useAsyncData
-	async function initialFetch() {
-		pending.value = true;
-		try {
-			const cacheKey = `transactions-${period.value.from.toDateString()}-${period.value.to.toDateString()}`;
-			const { data } = await useAsyncData(cacheKey, fetchTransactionsData);
-			return data.value;
-		} catch (error) {
-			console.error("獲取資料時出錯:", error);
-			return [];
-		} finally {
-			pending.value = false;
-		}
-	}
-
-	// 更新時使用 $fetch 風格
-	async function updateFetch() {
-		pending.value = true;
-		try {
-			return await fetchTransactionsData();
-		} catch (error) {
-			console.error("獲取資料時出錯:", error);
-			return [];
-		} finally {
-			pending.value = false;
-		}
-	}
-
+	// 統一使用 refresh 方法，避免 SSR/CSR 不一致
 	async function refresh() {
-		const result = isMounted.value ? await updateFetch() : await initialFetch();
-		if (result) transactions.value = result;
+		pending.value = true;
+		try {
+			const result = await fetchTransactionsData();
+			transactions.value = result;
+		} catch (error) {
+			console.error("獲取資料時出錯:", error);
+			transactions.value = [];
+		} finally {
+			pending.value = false;
+		}
 	}
 
-	watch(period, async () => await refresh());
+	// 僅在客戶端且期間變更時觸發刷新
+	watch(period, async () => {
+		if (import.meta.client) await refresh();
+	});
 
 	return {
 		transactions: {

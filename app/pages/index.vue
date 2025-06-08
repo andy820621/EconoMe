@@ -7,6 +7,13 @@ useHead({
 
 const user = useSupabaseUser();
 
+// 檢查 URL 中是否有 OAuth code，如果有則清理 URL
+const route = useRoute();
+if (route.query.code) {
+	console.log("OAuth code detected in homepage, cleaning URL...");
+	await navigateTo("/", { replace: true });
+}
+
 const selectedView = ref(
 	user.value?.user_metadata?.transaction_view ?? transactionViewOptions[1]
 );
@@ -39,7 +46,14 @@ const {
 	},
 } = useFetchTransactions(previous);
 
-await handleRefresh();
+// 等待用戶認證完成後再載入資料
+watch(
+	user,
+	async (newUser) => {
+		if (newUser) await handleRefresh();
+	},
+	{ immediate: true }
+);
 
 async function handleRefresh() {
 	await Promise.all([refresh(), refreshPrevious()]);
@@ -119,31 +133,26 @@ const isOpen = ref(false);
 		</div>
 	</section>
 
-	<section v-if="!pending">
-		<div v-if="Object.keys(byDate).length === 0" class="text-center py-10">
-			<p>No transactions for this period.</p>
+	<section v-if="!pending && Object.keys(byDate).length > 0">
+		<div v-for="(transactionsOnDay, date) in byDate" :key="date" class="mb-10">
+			<DailyTransactionSummary :date="date" :transactions="transactionsOnDay" />
+			<Transaction
+				v-for="transaction in transactionsOnDay"
+				:key="transaction.id"
+				:transaction="transaction"
+				@deleted="handleRefresh"
+				@edited="handleRefresh"
+			/>
 		</div>
-
-		<template v-else>
-			<div
-				v-for="(transactionsOnDay, date) in byDate"
-				:key="date"
-				class="mb-10"
-			>
-				<DailyTransactionSummary
-					:date="date"
-					:transactions="transactionsOnDay"
-				/>
-				<Transaction
-					v-for="transaction in transactionsOnDay"
-					:key="transaction.id"
-					:transaction="transaction"
-					@deleted="handleRefresh"
-					@edited="handleRefresh"
-				/>
-			</div>
-		</template>
 	</section>
+
+	<section
+		v-else-if="!pending && Object.keys(byDate).length === 0"
+		class="text-center py-10"
+	>
+		<p>No transactions for this period.</p>
+	</section>
+
 	<section v-else>
 		<USkeleton class="h-8 w-full mb-2" v-for="i in 4" :key="i" />
 	</section>

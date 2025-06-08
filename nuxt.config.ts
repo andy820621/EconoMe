@@ -3,8 +3,19 @@ export default defineNuxtConfig({
 	compatibilityDate: "2025-05-01",
 	devtools: { enabled: true },
 	modules: ["@nuxt/ui", "@nuxtjs/supabase"],
+	ssr: true,
 	supabase: {
 		redirect: true,
+		redirectOptions: {
+			login: "/login",
+			callback: "/confirm",
+			exclude: ["/"],
+		},
+		cookieOptions: {
+			maxAge: 60 * 60 * 8, // 8 hours
+			sameSite: "lax",
+			secure: process.env.NODE_ENV === "production",
+		},
 	},
 	// typescript: {
 	// 	typeCheck: true,
@@ -26,6 +37,10 @@ export default defineNuxtConfig({
 		// button: {
 		// }
 	},
+	// 減少 hydration 警告
+	// experimental: {
+	// 	payloadExtraction: false,
+	// },
 	// tailwindcss: {
 	// 	config: {
 	// 		darkMode: "class",

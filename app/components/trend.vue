@@ -34,17 +34,27 @@ const props = defineProps<{
 
 const { amount } = toRefs(props);
 
-const trendingUp = computed(() => props.amount >= props.lastAmount);
-const icon = computed(() =>
-	trendingUp.value
+const trendingUp = computed(() => {
+	if (!import.meta.client && props.loading) return true; // SSR 時如果還在加載，返回默認值
+	return props.amount >= props.lastAmount;
+});
+
+const icon = computed(() => {
+	if (!import.meta.client && props.loading)
+		return "i-heroicons-arrow-trending-up"; // SSR 時如果還在加載，返回默認 icon
+	return trendingUp.value
 		? "i-heroicons-arrow-trending-up"
-		: "i-heroicons-arrow-trending-down"
-);
+		: "i-heroicons-arrow-trending-down";
+});
 
 const { currency } = useCurrency(amount);
 
 const percentageTrend = computed(() => {
-	if (props.amount === 0 || props.lastAmount === 0) return "∞%";
+	if (!import.meta.client && props.loading) return "0%"; // SSR 時如果還在加載，返回默認值
+
+	if (props.amount === 0 && props.lastAmount === 0) return "0%";
+	if (props.lastAmount === 0) return "∞%";
+	if (props.amount === 0) return "-100%";
 
 	const bigger = Math.max(props.amount, props.lastAmount);
 	const lower = Math.min(props.amount, props.lastAmount);

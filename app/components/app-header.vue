@@ -2,11 +2,7 @@
 	<header class="flex justify-between items-center mt-5">
 		<NuxtLink to="/" class="text-xl font-bold">Finance Tracker</NuxtLink>
 		<div>
-			<UDropdownMenu
-				:items="items"
-				:ui="{ item: { disabled: 'cursor-text select-text' }, width: 'w-64' }"
-				v-if="user"
-			>
+			<UDropdownMenu :items="items" :ui="{ content: 'w-64' }" v-if="user">
 				<UAvatar :src="avatarUrl" alt="Avatar" imgClass="object-cover" />
 
 				<template #account>
@@ -25,7 +21,8 @@
 					<span class="truncate">{{ item.label }}</span>
 
 					<UIcon
-						:name="item.icon ?? ''"
+						v-if="'icon' in item && item.icon"
+						:name="item.icon"
 						class="shrink-0 h-4 w-4 text-neutral-400 dark:text-neutral-500 ms-auto"
 					/>
 				</template>
