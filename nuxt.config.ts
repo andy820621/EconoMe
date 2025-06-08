@@ -30,6 +30,7 @@ export default defineNuxtConfig({
 	},
 	css: ["~/assets/css/main.css"],
 	ui: {
+		fonts: false, // 禁用字體功能以避免 MIME 錯誤
 		// colors: {
 		// 	primary: 'green',
 		// 	neutral: 'slate'
