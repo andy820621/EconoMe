@@ -25,9 +25,6 @@ export default defineNuxtConfig({
 			baseUrl: process.env.BASE_URL || "http://localhost:3000",
 		},
 	},
-	future: {
-		compatibilityVersion: 4,
-	},
 	css: ["~/assets/css/main.css"],
 	ui: {
 		fonts: false, // 禁用字體功能以避免 MIME 錯誤
