@@ -13,25 +13,25 @@
 		"seed": "node seed.mjs"
 	},
 	"devDependencies": {
-		"@faker-js/faker": "^10.1.0",
-		"@iconify-json/logos": "^1.2.10",
-		"@iconify-json/lucide": "^1.2.81",
-		"@nuxt/devtools": "^3.1.1",
+		"@faker-js/faker": "^10.4.0",
+		"@iconify-json/logos": "^1.2.11",
+		"@iconify-json/lucide": "^1.2.101",
+		"@nuxt/devtools": "4.0.0-alpha.4",
 		"@nuxtjs/supabase": "^1.6.2",
 		"@nuxtjs/tailwindcss": "^6.14.0",
-		"@vueuse/core": "^13.9.0",
-		"@vueuse/nuxt": "^13.9.0",
-		"nuxt": "^4.2.2",
-		"typescript": "^5.9.3",
-		"vue": "^3.5.25",
-		"vue-router": "^4.6.4",
-		"vue-tsc": "^3.1.8"
+		"@vueuse/core": "^14.2.1",
+		"@vueuse/nuxt": "^14.2.1",
+		"nuxt": "^4.4.2",
+		"typescript": "^6.0.2",
+		"vue": "^3.5.32",
+		"vue-router": "^5.0.4",
+		"vue-tsc": "^3.2.6"
 	},
 	"dependencies": {
-		"@nuxt/ui": "^4.2.1",
+		"@nuxt/ui": "^4.6.1",
 		"date-fns": "^4.1.0",
-		"tailwindcss": "^4.1.18",
-		"zod": "^4.2.1"
+		"tailwindcss": "^4.2.2",
+		"zod": "^4.3.6"
 	},
 	"pnpm": {
 		"onlyBuiltDependencies": [
@@ -41,11 +41,10 @@
 			"vue-demi"
 		],
 		"overrides": {
-			"npm-run-path": "5.3.0",
-			"unicorn-magic": "0.2.0"
+			"npm-run-path": "5.3.0"
 		}
 	},
-	"packageManager": "pnpm@10.20.0+sha512.cf9998222162dd85864d0a8102e7892e7ba4ceadebbf5a31f9c2fce48dfce317a9c53b9f6464d1ef9042cba2e02ae02a9f7c143a2b438cd93c91840f0192b9dd",
+	"packageManager": "pnpm@10.33.0+sha512.10568bb4a6afb58c9eb3630da90cc9516417abebd3fabbe6739f0ae795728da1491e9db5a544c76ad8eb7570f5c4bb3d6c637b2cb41bfdcdb47fa823c8649319",
 	"engines": {
 		"node": "22.21.0"
 	},
